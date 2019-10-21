@@ -2,6 +2,7 @@
 #define __MATRIX_H__
 
 #include <cassert>
+#include <cmath>
 #include <initializer_list>
 #include <utility>
 #include <iostream>
