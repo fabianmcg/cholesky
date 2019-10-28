@@ -7,6 +7,7 @@ using namespace std;
 using namespace __core__;
 
 typedef double real_T;
+static constexpr int cholesky_ver=2;
 int main(int argc,char *argv[]) {
 	bool print=false;
 	bool check_inverse=false;
@@ -14,7 +15,7 @@ int main(int argc,char *argv[]) {
     cerr<<std::fixed;
     cerr<<std::setprecision(9);
     double ct=0,bt=0,ft=0;
-    size_t n=400;
+    size_t n=10;
     size_t nr=1;
     Matrix<real_T> A;
     if(argc>1) {
@@ -56,7 +57,7 @@ int main(int argc,char *argv[]) {
     cpu_timer timer;
     for(size_t k=0;k<nr;++k) {
     	timer.start();
-    	U=cholesky(A);
+    	U=cholesky<cholesky_ver>(A);
     	timer.stop();
     	ct+=timer.elapsed_time();
     }
