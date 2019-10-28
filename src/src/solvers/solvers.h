@@ -7,9 +7,9 @@
 #include "forward.h"
 
 namespace __core__ {
-template <typename T> Matrix<T> cholesky(const Matrix<T>& A) {
+template <int ver=0, typename T=void> Matrix<T> cholesky(const Matrix<T>& A) {
 	Matrix<T> R=A;
-	cholesky(*R,R.n());
+	cholesky<ver>(*R,R.n());
 	return R;
 }
 template <typename T> Matrix<T> backward(const Matrix<T>& L,const Matrix<T>& b) {
