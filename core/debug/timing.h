@@ -1,0 +1,74 @@
+#ifndef __TIMING_H__
+#define __TIMING_H__
+
+#include <chrono>
+#include <cmath>
+#include <iostream>
+
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
+
+namespace __core__ {
+namespace __debug__ {
+struct cpu_timer {
+	std::chrono::high_resolution_clock::time_point t1;
+	std::chrono::high_resolution_clock::time_point t2;
+	__inline__ __attribute__((always_inline)) void start() {
+		t1=std::chrono::high_resolution_clock::now();
+	}
+	__inline__ __attribute__((always_inline)) void stop() {
+		t2=std::chrono::high_resolution_clock::now();
+	}
+	__inline__ __attribute__((always_inline)) double elapsed_time()const {
+		return static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>( t2 - t1 ).count())*pow(10.,-9.);
+	}
+
+};
+struct gpu_timer {
+	cudaEvent_t t1;
+	cudaEvent_t t2;
+	cudaStream_t stream=0;
+	gpu_timer() {
+		cudaEventCreate(&t1);
+		cudaEventCreate(&t2);
+	}
+	~gpu_timer() {
+		cudaEventDestroy(t1);
+		cudaEventDestroy(t2);
+	}
+	__inline__ __attribute__((always_inline)) void start() {
+		cudaDeviceSynchronize();
+		cudaEventRecord(t1,stream);
+	}
+	__inline__ __attribute__((always_inline)) void stop() {
+		cudaEventRecord(t2,stream);
+		cudaEventSynchronize(t2);
+	}
+	__inline__ __attribute__((always_inline)) double elapsed_time() const {
+		float elapsed;
+		cudaEventElapsedTime(&elapsed,t1,t2);
+		return ((double)elapsed)*pow(10,-3);
+	}
+};
+
+std::ostream &operator<<(std::ostream &oss,const cpu_timer &timer) {
+	oss<<timer.elapsed_time();
+	return oss;
+}
+std::ostream &operator<<(std::ostream &oss,const gpu_timer &timer) {
+	oss<<timer.elapsed_time();
+	return oss;
+}
+
+template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const cpu_timer &timer) {
+	t=timer.elapsed_time();
+	return t;
+}
+template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const gpu_timer &timer) {
+	t=timer.elapsed_time();
+	return t;
+}
+}
+}
+#endif
+ 
