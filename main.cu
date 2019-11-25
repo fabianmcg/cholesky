@@ -10,45 +10,33 @@ using namespace std;
 using namespace __core__;
 using namespace __third_party__;
 
-#define VAL M_PI
+//#include "test/tree-tests.h"
+#include "test/cholesky-sparse.h"
 
 int main() {
-	Matrix<double,cpuAllocator> A,R,U,AC;
-	MatrixCXS<double,int,cpuAllocator,CRS> aCRS;
-	string filename="./test/t2dal_e.rb";
-	aCRS=std::move(read<double,int>(filename));
-	convert(A,aCRS);
-	R=A;
-	MatrixHandler<double,size_t> RH(R);
-	cpu_timer timer;
-	timer.start();
-	cholesky<1>(RH);
-	timer.stop();
-	transpose(U,R);
-	multiply(AC,U,R);
-	cerr<<"********************************************************************************"<<endl;
-	cerr<<endl<<endl<<"\tMatrix filename: "<<filename<<"\n\t\tRows: "<<aCRS.rows()<<"\n\t\tCols: "<<aCRS.cols()<<"\n\t\tNZV: "<<aCRS.nzv()<<endl<<endl;
-	cerr<<"********************************************************************************"<<endl;
-	cerr<<"\tDense:"<<endl;
-	cerr<<"\t\tError: "<<maxDifference(A,AC)<<endl;
-	cerr<<"\t\tTiming: "<<timer<<endl;
-	cerr<<"********************************************************************************"<<endl;
-	MatrixMap<double> aMap,rMap,uMap,acMap;
-	convert(aMap,aCRS);
-	rMap=choleskyInput(aMap);
-	timer.start();
-	cholesky<0>(rMap);
-	timer.stop();
-	transpose(uMap,rMap);
-	acMap=multiply(uMap,rMap);
-	cerr<<"\tSparse:"<<endl;
-	cerr<<"\t\tError: "<<maxDifference(aMap,acMap)<<endl;
-	cerr<<"\t\tTiming: "<<timer<<endl;
-	cerr<<"********************************************************************************"<<endl;
-	cerr<<"\tmax(abs(Dense-Sparse)):"<<endl;
-	Matrix<double,cpuAllocator> acD;
-	convert(acD,acMap);
-	cerr<<"\t\tError: "<<maxDifference(A,acD)<<endl;
-	cerr<<"********************************************************************************"<<endl;
+	cerr<<"************************************************************"<<endl;
+	cerr<<"*                  Execution began                         *"<<endl;
+	cerr<<"************************************************************"<<endl;
+//	sparseCholesky("./test/matrices/1138_bus.rb");
+	Matrix<int,cpuAllocator> AD(4,4,-1,0,DEFAULT_STREAM),ARD;
+	AD(0,0)=1;
+	AD(0,3)=2;
+	AD(3,0)=3;
+	AD(1,1)=4;
+	AD(3,1)=7;
+	AD(2,2)=5;
+	AD(3,3)=6;
+	cerr<<AD<<endl;
+	MatrixCXS<int,int,cpuAllocator,CCS> AS,AR;
+	convert(AS,AD);
+	AS.print(cerr,AS.nzv(),", ","{","}",[](std::ostream &__ost__,auto r,auto c,auto v) -> void { __ost__<<"{"<<r+1<<","<<c+1<<"}->"<<v; })<<endl;
+	std::vector<int> permutation({3,0,1,2});
+	reorderMatrix(AR,AS,permutation.data());
+	convert(ARD,AR);
+	cerr<<AR<<endl;
+	cerr<<ARD<<endl;
+	cerr<<"************************************************************"<<endl;
+	cerr<<"*                  Execution ended                         *"<<endl;
+	cerr<<"************************************************************"<<endl;
 	return 0;
 }

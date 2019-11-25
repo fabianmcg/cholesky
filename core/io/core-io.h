@@ -7,6 +7,7 @@
 #include "../debug/debug.h"
 #include "../data-structures/data-structures.h"
 #include "../types/vector-types.h"
+
 namespace __core__ {
 namespace __io__ {
 namespace __io_core__ {
@@ -36,7 +37,7 @@ template <typename T,typename U=T,int n=0,uint alignment=0> std::ostream& print(
     ost<<end;
     return ost;
 }
-template <typename T,int n,uint alignment> std::ostream & operator<<(std::ostream &ost,const Vector<T,n,alignment>& v) {
+template <typename T,int n,uint alignment> std::ostream& operator<<(std::ostream &ost,const Vector<T,n,alignment>& v) {
 	return print(v,ost);
 }
 }

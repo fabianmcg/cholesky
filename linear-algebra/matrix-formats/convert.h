@@ -138,6 +138,44 @@ void convert(MatrixMap<T>& dmatrix,const MatrixCXS<T,IT,AllocatorT,frmt>& smatri
 		break;
 	}
 }
+template <typename T,typename AllocatorT1,typename AllocatorT2,typename IT,enable_IT<eq_CE(AllocatorT1::location,AllocatorT2::location)&&eq_CE(AllocatorT1::location,HOST)> = 0>
+void convert(MatrixCXS<T,IT,AllocatorT2,CRS>& dmatrix,const MatrixCXS<T,IT,AllocatorT1,CCS>& smatrix) {
+	dmatrix.resize(smatrix.n(),smatrix.m(),smatrix.nzv());
+	std::vector<IT> rowCount(dmatrix.rows());
+	for(size_t i=0;i<dmatrix.nzv();++i)
+		rowCount[smatrix.indxs(i)]+=1;
+	dmatrix.ptr(0)=0;
+	for(size_t i=0;i<dmatrix.n();++i)
+		dmatrix.ptr(i+1)=rowCount[i]+dmatrix.ptr(i);
+	for(size_t j=0;j<smatrix.m();++j) {
+		for(IT i=smatrix.ptr(j);i<smatrix.ptr(j+1);++i) {
+			IT row=smatrix.indxs(i);
+			IT ptrPos=dmatrix.ptr(row+1)-rowCount[row];
+			rowCount[row]-=1;
+			dmatrix.indxs(ptrPos)=j;
+			dmatrix.values(ptrPos)=smatrix.values(i);
+		}
+	}
+}
+template <typename T,typename AllocatorT1,typename AllocatorT2,typename IT,enable_IT<eq_CE(AllocatorT1::location,AllocatorT2::location)&&eq_CE(AllocatorT1::location,HOST)> = 0>
+void convert(MatrixCXS<T,IT,AllocatorT2,CCS>& dmatrix,const MatrixCXS<T,IT,AllocatorT1,CRS>& smatrix) {
+	dmatrix.resize(smatrix.n(),smatrix.m(),smatrix.nzv());
+	std::vector<IT> colCount(dmatrix.cols());
+	for(size_t i=0;i<dmatrix.nzv();++i)
+		colCount[smatrix.indxs(i)]+=1;
+	dmatrix.ptr(0)=0;
+	for(size_t i=0;i<dmatrix.m();++i)
+		dmatrix.ptr(i+1)=colCount[i]+dmatrix.ptr(i);
+	for(size_t i=0;i<smatrix.n();++i) {
+		for(IT j=smatrix.ptr(i);j<smatrix.ptr(i+1);++j) {
+			IT col=smatrix.indxs(j);
+			IT ptrPos=dmatrix.ptr(col+1)-colCount[col];
+			colCount[col]-=1;
+			dmatrix.indxs(ptrPos)=i;
+			dmatrix.values(ptrPos)=smatrix.values(j);
+		}
+	}
+}
 }
 }
 }

@@ -74,11 +74,12 @@ template <typename T,typename U=T> std::ostream& print(const std::vector<T>& v,s
 }
 template <typename K,typename V,typename C> std::ostream & print(const std::map<K,V,C> &map,std::ostream &ost=std::cerr,std::size_t size=std::numeric_limits<size_t>::max(),std::string separator=", ",
 		std::string begin="{",std::string end="}",std::function<void(std::ostream &,K,V)> pprinter = [](std::ostream &__ost__,K key,V val) -> void { __ost__<<"["<<key<<"]->"<<val; }) {
+	size=std::min(size,map.size());
 	ost<<begin;
 	size_t c=0;
-	for(typename std::map<K,V,C>::const_iterator i=map.cbegin();i!=map.cend()&&(c++<size);++i) {
+	for(typename std::map<K,V,C>::const_iterator i=map.cbegin();i!=map.cend()&&(c<size);++i) {
 		pprinter(ost,i->first,i->second);
-		if(c!=map.size()-1)
+		if((c++)!=(map.size()-1))
 			ost<<separator;
 	}
 	ost<<end;
@@ -86,38 +87,37 @@ template <typename K,typename V,typename C> std::ostream & print(const std::map<
 }
 template <typename K,typename V,typename C> std::ostream & print(const std::unordered_map<K,V,C> &map,std::ostream &ost=std::cerr,std::size_t size=std::numeric_limits<size_t>::max(),std::string separator=", ",
 		std::string begin="{",std::string end="}",std::function<void(std::ostream &,K,V)> pprinter = [](std::ostream &__ost__,K key,V val) -> void { __ost__<<"["<<key<<"]->"<<val; }) {
+	size=std::min(size,map.size());
 	ost<<begin;
 	size_t c=0;
-	for(typename std::map<K,V,C>::const_iterator i=map.cbegin();i!=map.cend()&&(c++<size);++i) {
+	for(typename std::map<K,V,C>::const_iterator i=map.cbegin();i!=map.cend()&&(c<size);++i) {
 		pprinter(ost,i->first,i->second);
-		if(c!=map.size()-1)
+		if((c++)!=(map.size()-1))
 			ost<<separator;
 	}
 	ost<<end;
     return ost;
 }
-template <typename T> std::ostream& print(const std::set<T>& set,std::size_t size,std::ostream &ost=std::cerr,std::string separator=", ",std::string begin="{",std::string end="}") {
+template <typename T> std::ostream& print(const std::set<T>& set,std::ostream &ost=std::cerr,std::size_t size=std::numeric_limits<size_t>::max(),std::string separator=", ",std::string begin="{",std::string end="}") {
 	size=std::min(size,set.size());
-	ost<<begin;
 	size_t k=0;
 	ost<<begin;
-	for(auto i=set.cbegin();i!=set.cend()&&(k++<size);++i) {
-		if(k==size-1)
-			ost<<(*i);
+	for(auto i=set.cbegin();i!=set.cend()&&(k<size);++i) {
+		if(k==(size-1))
+			ost<<(*i)+1;
 		else
-			ost<<(*i)<<separator;
+			ost<<(*i)+1<<separator;
 		++k;
 	}
     ost<<end;
     return ost;
 }
-template <typename T> std::ostream& print(const std::unordered_set<T>& set,std::size_t size,std::ostream &ost=std::cerr,std::string separator=", ",std::string begin="{",std::string end="}") {
+template <typename T> std::ostream& print(const std::unordered_set<T>& set,std::ostream &ost=std::cerr,std::size_t size=std::numeric_limits<size_t>::max(),std::string separator=", ",std::string begin="{",std::string end="}") {
 	size=std::min(size,set.size());
-	ost<<begin;
 	size_t k=0;
 	ost<<begin;
-	for(auto i=set.cbegin();i!=set.cend()&&(k++<size);++i) {
-		if(k==size-1)
+	for(auto i=set.cbegin();i!=set.cend()&&(k<size);++i) {
+		if(k==(size-1))
 			ost<<(*i);
 		else
 			ost<<(*i)<<separator;
@@ -145,7 +145,7 @@ template <typename T> std::ostream& operator<<(std::ostream &ost,const std::unor
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-template <unsigned int mode=0,typename std::enable_if<mode==0,int>::type = 0> std::ifstream&& open_file(std::string file_name,std::ios_base::openmode openMode = std::ios_base::in) {
+template <unsigned int mode=0,typename std::enable_if<mode==0,int>::type = 0> std::ifstream open_file(std::string file_name,std::ios_base::openmode openMode = std::ios_base::in) {
     std::ifstream file;
     try {
         file.open(file_name,openMode);
@@ -162,7 +162,7 @@ template <unsigned int mode=0,typename std::enable_if<mode==0,int>::type = 0> st
     file.setstate(std::ios_base::badbit);
     return std::move(file);
 }
-template <unsigned int mode=0,typename std::enable_if<mode==1,int>::type = 0> std::ofstream&& open_file(std::string file_name,std::ios_base::openmode openMode = std::ios_base::out) {
+template <unsigned int mode=0,typename std::enable_if<mode==1,int>::type = 0> std::ofstream open_file(std::string file_name,std::ios_base::openmode openMode = std::ios_base::out) {
     std::ofstream file;
     try {
         file.open(file_name,openMode);
@@ -179,7 +179,7 @@ template <unsigned int mode=0,typename std::enable_if<mode==1,int>::type = 0> st
     file.setstate(std::ios_base::badbit);
     return std::move(file);
 }
-template <unsigned int mode=0,typename std::enable_if<(mode>=2),int>::type = 0> std::fstream&& open_file(std::string file_name,std::ios_base::openmode openMode=std::ios_base::in|std::ios_base::out) {
+template <unsigned int mode=0,typename std::enable_if<(mode>=2),int>::type = 0> std::fstream open_file(std::string file_name,std::ios_base::openmode openMode=std::ios_base::in|std::ios_base::out) {
     std::fstream file;
     try {
         file.open(file_name,openMode);

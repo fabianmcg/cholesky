@@ -8,6 +8,7 @@
 #include "../macro-definitions.h"
 #include "../meta/meta.h"
 #include "enum-definitions.h"
+#include "fundamental-types.h"
 
 namespace __core__ {
 namespace __type__ {

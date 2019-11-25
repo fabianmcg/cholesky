@@ -4,6 +4,7 @@
 #include "dense-matrix.h"
 #include "dense-matrix-handler.cuh"
 #include "sparse-cxs.h"
+#include "sparse-handler.h"
 #include "sparse-map.h"
 #include "convert.h"
 

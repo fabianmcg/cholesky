@@ -44,6 +44,8 @@ public:
 
 	uchar* operator*() const;
 
+	int device() const;
+
 	IT* ptr() const;
 	IT* indxs() const;
 	T* values() const;
@@ -66,6 +68,8 @@ public:
 	void resize(size_t i,size_t nzv,StreamType stream=0);
 	void resize(size_t i,size_t j,size_t nzv,StreamType stream=0);
 	void set(int v=0,StreamType stream=0);
+
+	void setNZV(size_t nzv);
 
 	template <bool check=true,typename allocatorType_T=void> MatrixCXS& import(const MatrixCXS<T,IT,allocatorType_T,frmt>& matrix,StreamType stream=0);
 
@@ -189,6 +193,11 @@ inline uchar* MatrixCXS<T,IT,Allocator,frmt>::operator*() const {
 }
 
 template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
+inline int MatrixCXS<T,IT,Allocator,frmt>::device() const {
+	return __data__.device();
+}
+
+template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
 inline IT* MatrixCXS<T,IT,Allocator,frmt>::ptr() const {
 	return __ptr__;
 }
@@ -248,6 +257,14 @@ template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
 inline void MatrixCXS<T,IT,Allocator,frmt>::set(int v,StreamType stream) {
 	__data__.set(v,stream);
 }
+template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
+inline void MatrixCXS<T,IT,Allocator,frmt>::setNZV(size_t nzv) {
+	if(nzv<=__nzv__)
+		__nzv__=nzv;
+	else {
+		error(true,"Invalid value.",RUNTIME_ERROR,stderr_error);
+	}
+}
 
 template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
 inline size_t MatrixCXS<T,IT,Allocator,frmt>::n() const {
@@ -273,7 +290,8 @@ inline size_t MatrixCXS<T,IT,Allocator,frmt>::nzv() const {
 template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
 inline void MatrixCXS<T,IT,Allocator,frmt>::resize(size_t i,size_t nzv,StreamType stream) {
 	if(computeSize(i,i,nzv)>__data__.capacity())
-		__data__.resize(computeSize(i,i,nzv),0,stream);
+		__data__.reserve(computeSize(i,i,nzv),stream);
+	__data__.expand();
 	__rows__=i;
 	__cols__=i;
 	__nzv__=nzv;
@@ -282,7 +300,8 @@ inline void MatrixCXS<T,IT,Allocator,frmt>::resize(size_t i,size_t nzv,StreamTyp
 template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt>
 inline void MatrixCXS<T,IT,Allocator,frmt>::resize(size_t i,size_t j,size_t nzv,StreamType stream) {
 	if(computeSize(i,j,nzv)>__data__.capacity())
-		__data__.resize(computeSize(i,j,nzv),0,stream);
+		__data__.reserve(computeSize(i,j,nzv),stream);
+	__data__.expand();
 	__rows__=i;
 	__cols__=j;
 	__nzv__=nzv;
@@ -326,7 +345,7 @@ inline std::ostream& MatrixCXS<T,IT,Allocator,frmt>::print(std::ostream &ost,std
 	case CCS:
 		for(size_t i=0;(i<__cols__)&&(counter<size);++i) {
 			for(size_t j=__ptr__[i];j<__ptr__[i+1];++j) {
-				pprinter(ost,i,__indx__[j],__values__[j]);
+				pprinter(ost,__indx__[j],i,__values__[j]);
 				if(counter<(__nzv__-1))
 					ost<<separator;
 				counter++;

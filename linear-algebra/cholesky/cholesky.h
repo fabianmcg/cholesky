@@ -3,6 +3,7 @@
 
 #include "dense.h"
 #include "sparse-map.h"
+#include "sparse-left-looking.h"
 
 namespace __core__ {
 namespace __linear_algebra__ {

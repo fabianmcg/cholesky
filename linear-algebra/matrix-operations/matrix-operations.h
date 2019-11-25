@@ -3,6 +3,8 @@
 
 #include "dense.h"
 #include "sparse.h"
+#include "elimitation-tree.h"
+#include "non-zero-pattern.h"
 
 namespace __core__ {
 namespace __linear_algebra__ {

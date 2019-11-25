@@ -35,9 +35,9 @@ struct RBioInfo {
 		__core__::free_memory(Zi);
 	}
 };
-template <typename T,typename IT> __core__::MatrixCXS<T,IT,__core__::cpuAllocator,__core__::CRS> read(std::string filename,int buildUpper=1,int zeroHandling=1) {
+template <typename T,typename IT> __core__::MatrixCXS<T,IT,__core__::cpuAllocator,__core__::CCS> read(std::string filename,int buildUpper=1,int zeroHandling=1) {
 	using namespace __core__;
-	MatrixCXS<T,IT,cpuAllocator,CRS> result;
+	MatrixCXS<T,IT,cpuAllocator,CCS> result;
 	RBioInfo info;
 	int ecode=RBread(const_cast<char*>(filename.c_str()),buildUpper,zeroHandling,info.title,info.key,info.mtype,&(info.nrow),&(info.ncol),&(info.mkind),&(info.skind),&(info.asize),
 			&(info.znz),&(info.Ap),&(info.Ai),&(info.Ax),NULL,NULL,NULL);
@@ -51,6 +51,7 @@ template <typename T,typename IT> __core__::MatrixCXS<T,IT,__core__::cpuAllocato
 		result.indxs(i)=info.Ai[i];
 		result.values(i)=info.Ax[i];
 	}
+	info.free();
 	return result;
 }
 }
