@@ -15,7 +15,7 @@ void convert(MatrixCXS<T,IT,Allocator1,CRS>& adjacency,const LRTree<K,V,Allocato
 	adjacency.set();
 	std::set<Vector<IT,2>> edges;
 	auto addEdge=[&edges,&tree](const Node<K,V,PT>& node,long depth) {
-		if(node.value!=tree.invalidPos)
+//		if(node.value!=tree.invalidPos)
 			edges.insert(Vector<IT,2>({node.key,tree[node.parent].key}));
 	};
 	tree.traverseLeftRight(addEdge);

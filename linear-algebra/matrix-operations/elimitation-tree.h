@@ -10,7 +10,7 @@ namespace __core__ {
 namespace __linear_algebra__ {
 namespace __matrix_operations__ {
 template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt> LRTree<IT,IT,Allocator,int> elimitationTree(const MatrixCXS<T,IT,Allocator,frmt>& matrix) {
-	LRTree<IT,IT,Allocator,int> tree(matrix.n()+64,-1);
+	LRTree<IT,IT,Allocator,int> tree(matrix.n()+4,-1);
 	std::vector<int> vars(matrix.n(),-1);
 	Node<IT,IT,int> *node,*nodeRow;
 	for(IT row=1;row<matrix.n();++row) {
@@ -52,17 +52,60 @@ template <typename T,typename IT,typename Allocator,SparseCXSFormat frmt> LRTree
 	return tree;
 }
 
-template <typename T,typename IT,typename Allocator> std::vector<IT> descendentCount(LRTree<IT,IT,Allocator,int>& tree) {
-
+template <typename IT,typename Allocator> void descendentCount(LRTree<IT,IT,Allocator,int>& tree) {
+	typedef Node<IT,IT,int> NT;
+	auto set=[](NT& node,int depth){ node.value=0; };
+	tree.traverseLeftRight(set);
+	NT root=*tree;
+	int node=root.left_child;
+	bool down=true;
+	size_t i=0;
+	while((i++)<tree.size()) {
+		if(down)
+			while(tree[node].left_child!=tree.invalidPos)
+				node=tree[node].left_child;
+		down=false;
+		tree[tree[node].parent].value+=tree[node].value+1;
+		if(tree[node].right_sibling!=tree.invalidPos) {
+			node=tree[node].right_sibling;
+			down=true;
+		}
+		else
+			node=tree[node].parent;
+		if(node==0||node==tree.invalidPos)
+			break;
+	}
 }
-template <typename T,typename IT,typename Allocator> std::vector<IT> postOrderTree(LRTree<IT,IT,Allocator,int>& tree) {
-	std::vector<IT> pi(tree.size());
-	IT count=0,tmp=0,parent=0,off=0;
-	auto reorder=[&pi,&count,&tmp,&parent,&off](Node<IT,IT,int>& node,long depth) {
-		node.key=((parent+tmp)-count)+off;
-
-		++count;
-	};
+template <typename IT,typename Allocator> std::vector<IT> postOrderTree(LRTree<IT,IT,Allocator,int>& tree) {
+	typedef Node<IT,IT,int> NT;
+	size_t n=tree.size();
+	std::vector<IT> pi(n*4);
+	NT root=*tree;
+	int node=root.left_child,tmp=0;
+	bool down=true;
+	size_t i=0;
+	while((i++)<n) {
+		if(down)
+			while(tree[node].left_child!=tree.invalidPos)
+				node=tree[node].left_child;
+		down=false;
+		pi[tmp]=tree[node].key;
+		pi[tree[node].key+n]=tmp;
+		if(tree[node].parent!=0)
+			pi[(2*n)+tree[tree[node].parent].key]+=pi[(2*n)+tree[node].key]+1;
+		tree[node].key=tmp++;
+		if(tree[node].right_sibling!=tree.invalidPos) {
+			node=tree[node].right_sibling;
+			down=true;
+		}
+		else
+			node=tree[node].parent;
+		if(node==0||node==tree.invalidPos)
+			break;
+	}
+	for(i=0;i<n;++i)
+		pi[3*n+pi[i+n]]=pi[2*n+i];
+	return pi;
 }
 }
 }

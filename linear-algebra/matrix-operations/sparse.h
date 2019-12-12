@@ -92,7 +92,24 @@ void reorderMatrix(MatrixCXS<T,IT,AllocatorD,CCS>& AR,const MatrixCXS<T,IT,Alloc
 		}
 	}
 }
-
+template <typename T,typename IT,typename Allocator>
+void trimDiagonal(MatrixCXS<T,IT,Allocator,CCS>& R,const MatrixCXS<T,IT,Allocator,CCS>& A) {
+	R.resize(A.n(),A.m(),A.nzv());
+	R.set(0);
+	size_t pos=0;
+	for(IT i=0;i<A.m();++i) {
+		for(IT it=A.ptr(i);it<A.ptr(i+1);++it) {
+			IT r=A.indxs(it);
+			if(r!=i) {
+				R.indxs(pos)=r;
+				R.values(pos)=A.values(it);
+				++pos;
+			}
+		}
+		R.ptr(i+1)=pos;
+	}
+	R.setNZV(R.ptr(A.n()));
+}
 //		for(IT it=A.ptr(pcol);it<A.ptr(pcol+1);++it) {
 //			AR.indxs(AR.ptr(i)+tmp)=invPermutation[A.indxs(it)];
 //			AR.values(AR.ptr(i)+tmp)=A.values(it);
