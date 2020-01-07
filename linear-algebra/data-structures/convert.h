@@ -11,7 +11,7 @@ namespace __linear_algebra__ {
 namespace __data_structures__ {
 template <typename T,typename IT,typename K,typename V,typename Allocator1,typename Allocator2,typename PT>
 void convert(MatrixCXS<T,IT,Allocator1,CRS>& adjacency,const LRTree<K,V,Allocator2,PT>& tree) {
-	adjacency.resize(tree.size(),tree.size());
+	adjacency.resize(tree.size()+1,tree.size()+1);
 	adjacency.set();
 	std::set<Vector<IT,2>> edges;
 	auto addEdge=[&edges,&tree](const Node<K,V,PT>& node,long depth) {
@@ -31,6 +31,7 @@ void convert(MatrixCXS<T,IT,Allocator1,CRS>& adjacency,const LRTree<K,V,Allocato
 		adjacency.ptr(row+1)=pos;
 	}
 	adjacency.setNZV(edges.size());
+	adjacency.ptr(tree.size()+1)=edges.size();
 }
 }
 }

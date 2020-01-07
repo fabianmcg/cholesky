@@ -324,6 +324,7 @@ Array<T,Allocator>& Array<T,Allocator>::move(Array&& array) {
 	__memory__::move(__size__,array.__size__);
 	__memory__::move(__capacity__,array.__capacity__);
 	__memory__::move(__allocated_size__,array.__allocated_size__);
+	array.__data__=nullptr;
 	___device___=array.___device___;
 	array.___device___=-1;
 	__allocator__=std::move(array.__allocator__);

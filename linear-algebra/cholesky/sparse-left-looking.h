@@ -2,6 +2,7 @@
 #define __SPARSE_LEFT_LOOKING_H__
 
 #include "../matrix-formats/matrix-formats.h"
+#include "elimitate-variables.h"
 
 namespace __core__ {
 namespace __linear_algebra__ {
@@ -31,6 +32,29 @@ void choleskyLeftLooking(MatrixCXSHandler<T,IT> L,MatrixCXSHandler<T,IT> A,Matri
 			L.values(it)=c[i]/lkk;
 			c[i]=0;
 		}
+	}
+}
+template <typename T,typename IT,typename Allocator>
+void choleskyLeftLooking(MatrixCXSHandler<T,IT> L,MatrixCXSHandler<T,IT> A,MatrixCXSHandler<IT,IT> RP,LRTree<IT,IT,Allocator,int>& tree,ArrayHandler<IT,IT> p,ArrayHandler<T,IT> c){
+	typedef Node<IT,IT,int> NT;
+	NT root=*tree;
+	int node=root.left_child;
+	bool down=true;
+	size_t i=0;
+	while((i++)<tree.size()) {
+		if(down)
+			while(tree[node].left_child!=tree.invalidPos)
+				node=tree[node].left_child;
+		down=false;
+		eliminateVariable(L,A,RP,p,c,tree[node].key);
+		if(tree[node].right_sibling!=tree.invalidPos) {
+			node=tree[node].right_sibling;
+			down=true;
+		}
+		else
+			node=tree[node].parent;
+		if(node==0||node==tree.invalidPos)
+			break;
 	}
 }
 }

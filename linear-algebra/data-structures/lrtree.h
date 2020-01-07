@@ -55,7 +55,7 @@ public:
 	typedef Allocator allocator_type;
 	typedef typename Allocator::memory_type memory_type;
 	static constexpr PT invalidPos=is_signed_CE<PT>()?-1:__numeric_limits__<PT>::max;
-	static constexpr Node<K,V,PT> nilNode=Node<K,V,PT>(invalidPos,invalidPos,invalidPos,invalidPos,invalidPos,invalidPos,K(0));
+	static const Node<K,V,PT> nilNode;
 	static bool isNil(const Node<K,V,PT>& node);
 private:
 	Array<nodeType,Allocator> __data__;
@@ -90,16 +90,23 @@ public:
 	template <typename VT=V,enable_IT<is_same_CE<VT,void>()> = 0> Node<K,V,PT>& insert(K key,const Node<K,V,PT>& parent);
 	template <typename VT=V,enable_IT<!is_same_CE<VT,void>()> = 0> Node<K,V,PT>& insert(K key,VT val,const Node<K,V,PT>& parent);
 	void erase(const Node<K,V,PT>& node);
+	void eraseBranch(const Node<K,V,PT>& node);
+	void eraseBranch(const Node<K,V,PT>& node,size_t rsize);
+	void eraseChildren(const Node<K,V,PT>& node,size_t rsize=0);
 	void moveUnder(PT node,PT parent);
+	void swapChildren(PT nodex,PT nodey,PT parent);
 
 	template <bool check=true,typename allocatorType_T=void> LRTree& import(const LRTree<K,V,allocatorType_T,PT>& tree,StreamType stream=0);
 
 	template <typename FT,typename...Args> void traverseLeftRight(FT& function,const Node<K,V,PT>& node=nilNode,Args... args);
 	template <typename FT,typename...Args> void traverseLeftRight(FT& function,const Node<K,V,PT>& node=nilNode,Args... args) const;
 
+	template <typename FT,typename...Args> void traverseLeftRightRoot(FT& function,const Node<K,V,PT>& node=nilNode,Args... args);
+	template <typename FT,typename...Args> void traverseLeftRightRoot(FT& function,const Node<K,V,PT>& node=nilNode,Args... args) const;
+
 	std::ostream& print(std::ostream& ost,const Node<K,V,PT>& node=nilNode,char bbegin='\t') const;
 };
-template<typename K,typename V,typename Allocator,typename PT> constexpr Node<K,V,PT> LRTree<K,V,Allocator,PT>::nilNode;
+template<typename K,typename V,typename Allocator,typename PT> const Node<K,V,PT> LRTree<K,V,Allocator,PT>::nilNode=Node<K,V,PT>(invalidPos,invalidPos,invalidPos,invalidPos,invalidPos,invalidPos,K(0));
 template<typename K,typename V,typename Allocator,typename PT>
 LRTree<K,V,Allocator,PT>::LRTree(int dev): __data__(dev) {
 }
@@ -299,6 +306,43 @@ void LRTree<K,V,Allocator,PT>::erase(const Node<K,V,PT>& node) {
 	--__size__;
 }
 template<typename K,typename V,typename Allocator,typename PT>
+void LRTree<K,V,Allocator,PT>::eraseBranch(const Node<K,V,PT>& node) {
+	if(isNil(node))
+		return ;
+	if(node.left_sibling!=invalidPos)
+		__data__[node.left_sibling].right_sibling=node.right_sibling;
+	else
+		__data__[node.parent].left_child=node.right_sibling;
+	if(node.right_sibling!=invalidPos)
+		__data__[node.right_sibling].left_sibling=node.left_sibling;
+	else
+		__data__[node.parent].right_child=node.left_sibling;
+//	__data__[node.self]=nilNode;
+}
+template<typename K,typename V,typename Allocator,typename PT>
+void LRTree<K,V,Allocator,PT>::eraseBranch(const Node<K,V,PT>& node,size_t rsize) {
+	if(isNil(node))
+		return ;
+	if(node.left_sibling!=invalidPos)
+			__data__[node.left_sibling].right_sibling=node.right_sibling;
+	else
+		__data__[node.parent].left_child=node.right_sibling;
+	if(node.right_sibling!=invalidPos)
+			__data__[node.right_sibling].left_sibling=node.left_sibling;
+	else
+		__data__[node.parent].right_child=node.left_sibling;
+	__data__[node.self]=nilNode;
+	__size__-=rsize;
+}
+template<typename K,typename V,typename Allocator,typename PT>
+void LRTree<K,V,Allocator,PT>::eraseChildren(const Node<K,V,PT>& node,size_t rsize) {
+	if(isNil(node))
+		return ;
+	__data__[node.self].left_child=invalidPos;
+	__data__[node.self].right_child=invalidPos;
+	__size__-=rsize;
+}
+template<typename K,typename V,typename Allocator,typename PT>
 void LRTree<K,V,Allocator,PT>::moveUnder(PT node,PT parent) {
 	if((node>__pos__)||(parent>__pos__))
 		return;
@@ -320,6 +364,46 @@ void LRTree<K,V,Allocator,PT>::moveUnder(PT node,PT parent) {
 	n.parent=p.self;
 	n.left_sibling=prc;
 	n.right_sibling=invalidPos;
+}
+template<typename K,typename V,typename Allocator,typename PT>
+void LRTree<K,V,Allocator,PT>::swapChildren(PT nodex,PT nodey,PT parent) {
+	Node<K,V,PT>& p=__data__[parent],&nx=__data__[nodex],&ny=__data__[nodey];
+	if((nx.left_sibling!=invalidPos)&&(nx.left_sibling!=ny.self))
+		__data__[nx.left_sibling].right_sibling=ny.self;
+	if((ny.right_sibling!=invalidPos)&&(ny.right_sibling!=nx.self))
+		__data__[ny.right_sibling].left_sibling=nx.self;
+	if((ny.left_sibling!=invalidPos)&&(ny.left_sibling!=nx.self))
+		__data__[ny.left_sibling].right_sibling=nx.self;
+	if((nx.right_sibling!=invalidPos)&&(nx.right_sibling!=ny.self))
+		__data__[nx.right_sibling].left_sibling=ny.self;
+	if(nx.self==p.left_child)
+		p.left_child=ny.self;
+	else if(ny.self==p.left_child)
+		p.left_child=nx.self;
+	if(nx.self==p.right_child)
+		p.right_child=ny.self;
+	else if(ny.self==p.right_child)
+		p.right_child=nx.self;
+	if((nx.left_sibling!=ny.self)&&(nx.right_sibling!=ny.self)) {
+		PT tmp=ny.left_sibling;
+		ny.left_sibling=nx.left_sibling;
+		nx.left_sibling=tmp;
+		tmp=ny.right_sibling;
+		ny.right_sibling=nx.right_sibling;
+		nx.right_sibling=tmp;
+	}
+	else if(nx.right_sibling!=ny.self) {
+		nx.left_sibling=ny.left_sibling;
+		ny.left_sibling=nx.self;
+		ny.right_sibling=nx.right_sibling;
+		nx.right_sibling=ny.self;
+	}
+	else {
+		ny.left_sibling=nx.left_sibling;
+		nx.left_sibling=ny.self;
+		nx.right_sibling=ny.right_sibling;
+		ny.right_sibling=nx.self;
+	}
 }
 template<typename K,typename V,typename Allocator,typename PT> template<bool check,typename allocatorType_T>
 LRTree<K,V,Allocator,PT>& LRTree<K,V,Allocator,PT>::import(const LRTree<K,V,allocatorType_T,PT>& tree,StreamType stream) {
@@ -391,6 +475,68 @@ void LRTree<K,V,Allocator,PT>::traverseLeftRight(FT& function,const Node<K,V,PT>
 		}
 	}
 }
+template<typename K,typename V,typename Allocator,typename PT> template<typename FT,typename...Args>
+void LRTree<K,V,Allocator,PT>::traverseLeftRightRoot(FT& function,const Node<K,V,PT>& node,Args... args) {
+	Node<K,V,PT> n=node;
+	if(isNil(n))
+		n=__data__[0];
+	PT it=n.self;
+	long depth=0;
+	while(it!=invalidPos) {
+		function(__data__[it],depth,args...);
+		if(__data__[it].left_child!=invalidPos) {
+			it=__data__[it].left_child;
+			++depth;
+		}
+		else if(__data__[it].right_sibling!=invalidPos)
+			it=__data__[it].right_sibling;
+		else {
+			PT ot=__data__[it].parent;
+			while(ot!=invalidPos) {
+				--depth;
+				PT tmp=__data__[ot].right_sibling;
+				if(tmp!=invalidPos) {
+					ot=tmp;
+					break;
+				}
+				else
+					ot=__data__[ot].parent;
+			}
+			it=ot;
+		}
+	}
+}
+template<typename K,typename V,typename Allocator,typename PT> template<typename FT,typename...Args>
+void LRTree<K,V,Allocator,PT>::traverseLeftRightRoot(FT& function,const Node<K,V,PT>& node,Args... args) const {
+	Node<K,V,PT> n=node;
+	if(isNil(n))
+		n=__data__[0];
+	PT it=n.self;
+	long depth=0;
+	while(it!=invalidPos) {
+		function(__data__[it],depth,args...);
+		if(__data__[it].left_child!=invalidPos) {
+			it=__data__[it].left_child;
+			++depth;
+		}
+		else if(__data__[it].right_sibling!=invalidPos)
+			it=__data__[it].right_sibling;
+		else {
+			PT ot=__data__[it].parent;
+			while(ot!=invalidPos) {
+				--depth;
+				PT tmp=__data__[ot].right_sibling;
+				if(tmp!=invalidPos) {
+					ot=tmp;
+					break;
+				}
+				else
+					ot=__data__[ot].parent;
+			}
+			it=ot;
+		}
+	}
+}
 template<typename K,typename V,typename Allocator,typename PT>  std::ostream& LRTree<K,V,Allocator,PT>::print(std::ostream& ost,const Node<K,V,PT>& node,char bbegin) const {
 	auto print=[&ost,bbegin](const Node<K,V,PT>& t,long depth) {
 		if(depth>0) {
@@ -411,8 +557,8 @@ template <typename K,typename V,typename PT,enable_IT<is_same_CE<V,void>()> =0> 
 	return ost;
 }
 template <typename K,typename V,typename PT,enable_IT<!is_same_CE<V,void>()> =0> std::ostream& operator<<(std::ostream& ost,const Node<K,V,PT>& node) {
-//	ost<<"Key: "<<node.key<<"\t"<<node.value;
-	ost<<"Key: "<<node.key;
+	ost<<"Key: "<<node.key<<"\t"<<node.value;
+//	ost<<"Key: "<<node.key;
 	return ost;
 }
 }

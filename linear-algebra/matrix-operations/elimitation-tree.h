@@ -78,6 +78,56 @@ template <typename IT,typename Allocator> void descendentCount(LRTree<IT,IT,Allo
 }
 template <typename IT,typename Allocator> std::vector<IT> postOrderTree(LRTree<IT,IT,Allocator,int>& tree) {
 	typedef Node<IT,IT,int> NT;
+	descendentCount(tree);
+	auto fn=[&tree](NT& node,long depth){
+		if((node.left_child!=tree.invalidPos)&&(node.left_child!=node.right_child)) {
+			IT it=node.left_child;
+			do {
+				NT ni=tree[it];
+				IT ot=ni.right_sibling;
+				while(ot!=tree.invalidPos) {
+					NT no=tree[ot];
+					ot=no.right_sibling;
+					if(ni.value<no.value) {
+						tree.swapChildren(it,no.self,node.self);
+						ni=no;
+					}
+				}
+				it=ni.right_sibling;
+			} while(it!=tree.invalidPos);
+		}
+	};
+//	tree.print(std::cerr)<<std::endl;
+	tree.traverseLeftRightRoot(fn);
+	size_t n=tree.size();
+	std::vector<IT> pi(n*2);
+	NT root=*tree;
+	int node=root.left_child,tmp=0;
+	bool down=true;
+	size_t i=0;
+	while((i++)<n) {
+		if(down)
+			while(tree[node].left_child!=tree.invalidPos)
+				node=tree[node].left_child;
+		down=false;
+		pi[tmp]=tree[node].key;
+		pi[tree[node].key+n]=tmp;
+		tree[node].key=tmp++;
+		if(tree[node].right_sibling!=tree.invalidPos) {
+			node=tree[node].right_sibling;
+			down=true;
+		}
+		else
+			node=tree[node].parent;
+		if(node==0||node==tree.invalidPos)
+			break;
+	}
+//	tree.print(std::cerr)<<std::endl;
+	return pi;
+}
+/*
+ * template <typename IT,typename Allocator> std::vector<IT> postOrderTree(LRTree<IT,IT,Allocator,int>& tree) {
+	typedef Node<IT,IT,int> NT;
 	size_t n=tree.size();
 	std::vector<IT> pi(n*4);
 	NT root=*tree;
@@ -107,6 +157,7 @@ template <typename IT,typename Allocator> std::vector<IT> postOrderTree(LRTree<I
 		pi[3*n+pi[i+n]]=pi[2*n+i];
 	return pi;
 }
+ */
 }
 }
 }

@@ -4,6 +4,8 @@
 #include "dense.h"
 #include "sparse-map.h"
 #include "sparse-left-looking.h"
+#include "super-nodes.h"
+#include "parallel-left-looking.h"
 
 namespace __core__ {
 namespace __linear_algebra__ {
