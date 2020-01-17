@@ -292,16 +292,24 @@ void LRTree<K,V,Allocator,PT>::erase(const Node<K,V,PT>& node) {
 		else
 			__data__[node.left_sibling].right_sibling=node.right_sibling;
 	}
-	else
-		__data__[node.parent].left_child=node.left_child;
+	else {
+		if(node.left_child!=invalidPos)
+			__data__[node.parent].left_child=node.left_child;
+		else
+			__data__[node.parent].left_child=node.right_sibling;
+	}
 	if(node.right_sibling!=invalidPos) {
 		if(node.right_child!=invalidPos)
 			__data__[node.right_sibling].left_sibling=node.right_child;
 		else
 			__data__[node.right_sibling].left_sibling=node.left_sibling;
 	}
-	else
-		__data__[node.parent].right_child=node.right_child;
+	else {
+		if(node.right_child!=invalidPos)
+			__data__[node.parent].right_child=node.right_child;
+		else
+			__data__[node.parent].right_child=node.left_sibling;
+	}
 	__data__[node.self]=nilNode;
 	--__size__;
 }
@@ -539,11 +547,11 @@ void LRTree<K,V,Allocator,PT>::traverseLeftRightRoot(FT& function,const Node<K,V
 }
 template<typename K,typename V,typename Allocator,typename PT>  std::ostream& LRTree<K,V,Allocator,PT>::print(std::ostream& ost,const Node<K,V,PT>& node,char bbegin) const {
 	auto print=[&ost,bbegin](const Node<K,V,PT>& t,long depth) {
-		if(depth>0) {
-			std::string tmp(depth,bbegin);
-			ost<<tmp<<t<<std::endl;
-		}
-		else
+//		if(depth>0) {
+//			std::string tmp(depth,bbegin);
+//			ost<<tmp<<t<<std::endl;
+//		}
+//		else
 			ost<<t<<std::endl;
 	};
 	Node<K,V,PT> n=node;
@@ -557,7 +565,9 @@ template <typename K,typename V,typename PT,enable_IT<is_same_CE<V,void>()> =0> 
 	return ost;
 }
 template <typename K,typename V,typename PT,enable_IT<!is_same_CE<V,void>()> =0> std::ostream& operator<<(std::ostream& ost,const Node<K,V,PT>& node) {
-	ost<<"Key: "<<node.key<<"\t"<<node.value;
+
+	ost<<node.key<<", "<<node.value;
+//	ost<<"Key: "<<node.key<<"\t"<<node.value;
 //	ost<<"Key: "<<node.key;
 	return ost;
 }

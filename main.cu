@@ -22,13 +22,14 @@ int main(int argc, char **argv) {
 //	std::string filename = "./test/matrices/LFAT5.rb";
 //	std::string filename = "./test/matrices/LF10.rb";
 //	std::string filename="./test/matrices/ex5.rb";
-	std::string filename="./test/matrices/bcsstk01.rb";
+//	std::string filename="./test/matrices/bcsstk01.rb";
 //	std::string filename="./test/matrices/bcsstk02.rb";
 //	std::string filename="./test/matrices/1138_bus.rb";
 //	std::string filename="./test/matrices/bcsstk16.rb";
 //	std::string filename="./test/matrices/mhd4800b.rb";
-	size_t branchSize=96,threadnum=2;
-	double tolerance=0.2;
+	std::string filename="./test/matrices/torsion1.rb";
+	size_t branchSize=400,threadnum=4;
+	double tolerance=0.1;
 	if(argc > 1)
 		filename = std::string(argv[1]);
 	if(argc > 3) {

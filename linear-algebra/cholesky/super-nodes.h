@@ -9,6 +9,8 @@ namespace __cholesky__ {
 struct SuperNode {
 	int parent=-1;
 	int evars=0;
+	double time=0;
+	int processor=0;
 	std::vector<int> nodes=std::vector<int>();
 	SuperNode(int v) {
 	}
@@ -62,6 +64,82 @@ template <typename IT,typename Allocator> void simplifyTree(LRTree<IT,IT,Allocat
 			break;
 	}
 }
+
+template <typename IT,typename Allocator> void eraseChildren(LRTree<IT,IT,Allocator,int>& tree,Node<IT,IT,int>& node,std::vector<bool>& removable) {
+	removable[node.key]=false;
+	int nodeIt=node.left_child;
+	bool down=true;
+	while((nodeIt!=tree.invalidPos)&&(nodeIt!=node.self)) {
+		if(down)
+			while(tree[nodeIt].left_child!=tree.invalidPos)
+				nodeIt=tree[nodeIt].left_child;
+		down=false;
+		Node<IT,IT,int> tmp=tree[nodeIt];
+		if(removable[tmp.key])
+			tree.erase(tree[nodeIt]);
+		if(tmp.right_sibling!=tree.invalidPos) {
+			nodeIt=tmp.right_sibling;
+			down=true;
+		}
+		else
+			nodeIt=tmp.parent;
+	}
+}
+template <typename IT,typename Allocator> void simplifyTreeIteration(LRTree<IT,IT,Allocator,int>& tree,int onode,int maxbranchSize,int minbranchSize,std::vector<int>& rcounts,std::vector<bool>& removable) {
+	memset(rcounts.data(),0,rcounts.size()*sizeof(int));
+	auto cut=[&tree,&rcounts,&removable](int n,int maxb,int minb) {
+		if((tree[n].value<=maxb)&&removable[tree[n].key]) {
+//			IT parent=tree[tree[n].parent].key;
+			rcounts[tree[n].key]=tree[n].value+1;
+//			rcounts[parent]+=tree[n].value+1;
+			eraseChildren(tree,tree[n],removable);
+			return true;
+		}
+		return false;
+	};
+	int node=onode;
+	bool down=true;
+	do {
+		if(down) {
+			while(tree[node].left_child!=tree.invalidPos) {
+				if(cut(node,maxbranchSize,minbranchSize))
+					break;
+				node=tree[node].left_child;
+			}
+		}
+		down=false;
+		if(node!=0) {
+			tree[tree[node].parent].value-=rcounts[tree[node].key];
+			rcounts[tree[tree[node].parent].key]+=rcounts[tree[node].key];
+		}
+		if(tree[node].right_sibling!=tree.invalidPos) {
+			node=tree[node].right_sibling;
+			down=true;
+		}
+		else
+			node=tree[node].parent;
+	} while((node!=tree.invalidPos)&&(node!=onode)&&(node!=0));
+}
+template <int v,typename IT,typename Allocator> void simplifyTree(LRTree<IT,IT,Allocator,int>& tree,size_t branchSize,double tolerance=0.2) {
+	size_t maxbs=__ceil__((1.+tolerance)*branchSize),minbs=__floor__((1.-tolerance)*branchSize);
+	std::vector<int> rcounts(tree.size()+2,0);
+	std::vector<bool> removable(tree.size()+2,true);
+	int node=(*tree).left_child;
+	bool all=true;
+	size_t maxit=5*tree.size()/branchSize;
+	do {
+		all=true;
+		node=(*tree).left_child;
+		while(node!=tree.invalidPos) {
+			if(removable[tree[node].key])
+				simplifyTreeIteration(tree,node,maxbs,minbs,rcounts,removable);
+			all=all&&!removable[tree[node].key];
+			node=tree[node].right_sibling;
+		}
+		maxit--;
+	} while((!all)&&(maxit!=0));
+	std::cerr<<"\t\tMax it: "<<maxit<<std::endl;
+}
 template <typename IT,typename Allocator> void populateTree(LRTree<IT,SuperNode,Allocator,int>& sntree,LRTree<IT,IT,Allocator,int>& simplifiedTree) {
 	size_t pos=1;
 	int node=(*simplifiedTree).left_child;
@@ -92,23 +170,25 @@ template <typename IT,typename Allocator> void populateTree(LRTree<IT,SuperNode,
 }
 }
 std::ostream& operator<<(std::ostream& ost,const SuperNode& node){
-	ost<<node.evars<<" "<<node.parent<<" {";
-	for(size_t i=0;i<node.nodes.size();++i) {
-		if(i!=(node.nodes.size()-1))
-			ost<<node.nodes[i]<<", ";
-		else
-			ost<<node.nodes[i];
-	}
-	ost<<"}";
+//	ost<<node.evars<<" "<<node.parent<<" {";
+//	for(size_t i=0;i<node.nodes.size();++i) {
+//		if(i!=(node.nodes.size()-1))
+//			ost<<node.nodes[i]<<", ";
+//		else
+//			ost<<node.nodes[i];
+//	}
+//	ost<<"}";
+	ost<<node.parent<<", "<<node.time<<", "<<node.processor<<", "<<node.evars;
 	return ost;
 }
 template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator,int>& tree,size_t branchSize,double tolerance=0.2) {
 	LRTree<IT,IT,Allocator,int> simplifiedTree(tree);
-	__super_nodes__::simplifyTree(simplifiedTree,branchSize,tolerance);
+//	tree.print(std::cerr)<<std::endl;
+	__super_nodes__::simplifyTree<0>(simplifiedTree,branchSize,tolerance);
+//	simplifiedTree.print(std::cerr)<<std::endl;
+//	std::cerr<<std::endl<<simplifiedTree.size()<<std::endl;
 	LRTree<IT,SuperNode,Allocator,int> sntree(simplifiedTree.size(),-1);
 	__super_nodes__::populateTree(sntree,simplifiedTree);
-//	simplifiedTree.print(std::cerr)<<std::endl;
-//	sntree.print(std::cerr)<<std::endl;
 	int node=(*sntree).left_child;
 	bool down=true;
 	size_t i=0;
@@ -117,6 +197,7 @@ template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator
 			while(sntree[node].left_child!=sntree.invalidPos)
 				node=sntree[node].left_child;
 		down=false;
+		//(sntree[node].left_child==sntree.invalidPos)&&
 		if((sntree[node].left_sibling==sntree.invalidPos)&&(sntree[node].right_sibling==sntree.invalidPos)&&(sntree[node].left_child==sntree.invalidPos)&&(sntree[node].parent!=0)) {
 			Node<IT,SuperNode,int>& tmp=sntree[node];
 			node=tmp.parent;
@@ -149,6 +230,14 @@ template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator
 		if(node==0||node==sntree.invalidPos)
 			break;
 	}
+//	auto rc=[&sntree](Node<int,SuperNode,int> &n,long depth){
+//		int tmp=n.left_child;
+//		while(tmp!=sntree.invalidPos) {
+//			n.value.evars-=sntree[tmp].value.evars;
+//			tmp=sntree[tmp].right_sibling;
+//		}
+//	};
+//	sntree.traverseLeftRight(rc);
 	return sntree;
 }
 template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator,int>& tree,LRTree<IT,IT,Allocator,int>& simplifiedTree,size_t branchSize,double tolerance=0.2) {
@@ -156,8 +245,6 @@ template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator
 	__super_nodes__::simplifyTree(simplifiedTree,branchSize,tolerance);
 	LRTree<IT,SuperNode,Allocator,int> sntree(simplifiedTree.size(),-1);
 	__super_nodes__::populateTree(sntree,simplifiedTree);
-//	simplifiedTree.print(std::cerr)<<std::endl;
-//	sntree.print(std::cerr)<<std::endl;
 	int node=(*sntree).left_child;
 	bool down=true;
 	size_t i=0;
