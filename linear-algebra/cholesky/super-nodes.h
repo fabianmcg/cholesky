@@ -98,12 +98,14 @@ template <typename IT,typename Allocator> void simplifyTreeIteration(LRTree<IT,I
 		return false;
 	};
 	int node=onode;
-	bool down=true;
+	bool down=true,noRm=true;
 	do {
 		if(down) {
 			while(tree[node].left_child!=tree.invalidPos) {
-				if(cut(node,maxbranchSize,minbranchSize))
+				if(cut(node,maxbranchSize,minbranchSize)) {
+					noRm=false;
 					break;
+				}
 				node=tree[node].left_child;
 			}
 		}
@@ -119,6 +121,8 @@ template <typename IT,typename Allocator> void simplifyTreeIteration(LRTree<IT,I
 		else
 			node=tree[node].parent;
 	} while((node!=tree.invalidPos)&&(node!=onode)&&(node!=0));
+	if(noRm)
+		removable[tree[onode].key]=false;
 }
 template <int v,typename IT,typename Allocator> void simplifyTree(LRTree<IT,IT,Allocator,int>& tree,size_t branchSize,double tolerance=0.2) {
 	size_t maxbs=__ceil__((1.+tolerance)*branchSize),minbs=__floor__((1.-tolerance)*branchSize);
@@ -126,7 +130,7 @@ template <int v,typename IT,typename Allocator> void simplifyTree(LRTree<IT,IT,A
 	std::vector<bool> removable(tree.size()+2,true);
 	int node=(*tree).left_child;
 	bool all=true;
-	size_t maxit=5*tree.size()/branchSize;
+	size_t maxit=8*tree.size()/branchSize;
 	do {
 		all=true;
 		node=(*tree).left_child;
@@ -136,9 +140,10 @@ template <int v,typename IT,typename Allocator> void simplifyTree(LRTree<IT,IT,A
 			all=all&&!removable[tree[node].key];
 			node=tree[node].right_sibling;
 		}
+		maxbs=(maxbs+minbs)/2;
 		maxit--;
 	} while((!all)&&(maxit!=0));
-	std::cerr<<"\t\tMax it: "<<maxit<<std::endl;
+//	std::cerr<<"\t\tMax it: "<<maxit<<std::endl;
 }
 template <typename IT,typename Allocator> void populateTree(LRTree<IT,SuperNode,Allocator,int>& sntree,LRTree<IT,IT,Allocator,int>& simplifiedTree) {
 	size_t pos=1;
@@ -189,47 +194,47 @@ template <typename IT,typename Allocator> auto superNodes(LRTree<IT,IT,Allocator
 //	std::cerr<<std::endl<<simplifiedTree.size()<<std::endl;
 	LRTree<IT,SuperNode,Allocator,int> sntree(simplifiedTree.size(),-1);
 	__super_nodes__::populateTree(sntree,simplifiedTree);
-	int node=(*sntree).left_child;
-	bool down=true;
-	size_t i=0;
-	while((i++)<sntree.size()) {
-		if(down)
-			while(sntree[node].left_child!=sntree.invalidPos)
-				node=sntree[node].left_child;
-		down=false;
-		//(sntree[node].left_child==sntree.invalidPos)&&
-		if((sntree[node].left_sibling==sntree.invalidPos)&&(sntree[node].right_sibling==sntree.invalidPos)&&(sntree[node].left_child==sntree.invalidPos)&&(sntree[node].parent!=0)) {
-			Node<IT,SuperNode,int>& tmp=sntree[node];
-			node=tmp.parent;
-			sntree.erase(tmp);
-		}
-		else {
-			if(sntree[node].right_sibling!=sntree.invalidPos) {
-				size_t evars=sntree[node].value.evars;
-				int it=sntree[node].right_sibling;
-				while(it!=sntree.invalidPos) {
-					if((evars+sntree[it].value.evars)<=branchSize) {
-						sntree[node].value.evars+=sntree[it].value.evars;
-						sntree[node].value.nodes.insert(sntree[node].value.nodes.end(),sntree[it].value.nodes.begin(),sntree[it].value.nodes.end());
-						evars+=sntree[it].value.evars;
-						int tmp=sntree[it].right_sibling;
-						sntree.erase(sntree[it]);
-						it=tmp;
-						continue;
-					}
-					it=sntree[it].right_sibling;
-				}
-				if(sntree[node].right_sibling!=sntree.invalidPos) {
-					node=sntree[node].right_sibling;
-					down=true;
-				}
-			}
-			else
-				node=sntree[node].parent;
-		}
-		if(node==0||node==sntree.invalidPos)
-			break;
-	}
+//	int node=(*sntree).left_child;
+//	bool down=true;
+//	size_t i=0;
+//	while((i++)<sntree.size()) {
+//		if(down)
+//			while(sntree[node].left_child!=sntree.invalidPos)
+//				node=sntree[node].left_child;
+//		down=false;
+//		//(sntree[node].left_child==sntree.invalidPos)&&
+//		if((sntree[node].left_sibling==sntree.invalidPos)&&(sntree[node].right_sibling==sntree.invalidPos)&&(sntree[node].left_child==sntree.invalidPos)&&(sntree[node].parent!=0)) {
+//			Node<IT,SuperNode,int>& tmp=sntree[node];
+//			node=tmp.parent;
+//			sntree.erase(tmp);
+//		}
+//		else {
+//			if(sntree[node].right_sibling!=sntree.invalidPos) {
+//				size_t evars=sntree[node].value.evars;
+//				int it=sntree[node].right_sibling;
+//				while(it!=sntree.invalidPos) {
+//					if((evars+sntree[it].value.evars)<=branchSize) {
+//						sntree[node].value.evars+=sntree[it].value.evars;
+//						sntree[node].value.nodes.insert(sntree[node].value.nodes.end(),sntree[it].value.nodes.begin(),sntree[it].value.nodes.end());
+//						evars+=sntree[it].value.evars;
+//						int tmp=sntree[it].right_sibling;
+//						sntree.erase(sntree[it]);
+//						it=tmp;
+//						continue;
+//					}
+//					it=sntree[it].right_sibling;
+//				}
+//				if(sntree[node].right_sibling!=sntree.invalidPos) {
+//					node=sntree[node].right_sibling;
+//					down=true;
+//				}
+//			}
+//			else
+//				node=sntree[node].parent;
+//		}
+//		if(node==0||node==sntree.invalidPos)
+//			break;
+//	}
 //	auto rc=[&sntree](Node<int,SuperNode,int> &n,long depth){
 //		int tmp=n.left_child;
 //		while(tmp!=sntree.invalidPos) {

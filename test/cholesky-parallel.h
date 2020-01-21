@@ -54,7 +54,7 @@ double sparseCholeskyWithReorderingP(const __core__::MatrixCXS<double,int,__core
 	timer.start();
 	choleskyLeftLookingPT(LH,AH,RPH,tree,snodes,ph,ch,threadnum);
 	timer.stop();
-	cerr<<endl<<"Parallel sparse with reordering:"<<endl<<"\tElapsed time: "<<timer<<endl<<endl;
+	cerr<<"Parallel sparse with reordering:"<<endl<<"\tElapsed time: "<<timer<<endl<<endl;
 	c.clear();
 	std::ofstream Aout=std::move(open_file<1>(outName+"A.csv"));
 	std::ofstream Lout=std::move(open_file<1>(outName+"L.csv"));
@@ -72,7 +72,7 @@ double sparseCholeskyWithReorderingP(const __core__::MatrixCXS<double,int,__core
 	L.print(Lout,L.nzv(),"\n","","",[](std::ostream &__ost__,auto r,auto c,auto v) -> void { __ost__<<""<<r+1<<","<<c+1<<","<<v; })<<endl;
 	ETree.print(Tout,ETree.nzv(),"\n","","",[](std::ostream &__ost__,auto r,auto c,auto v) -> void { __ost__<<""<<r+1<<","<<c+1<<","<<1; })<<endl;
 //	SETree.print(SETout,SETree.nzv(),"\n","","",[](std::ostream &__ost__,auto r,auto c,auto v) -> void { __ost__<<""<<r+1<<","<<c+1<<","<<1; })<<endl;
-	snodes.print(TTout);
+//	snodes.print(TTout);
 //	snodes.print(STout)<<endl;
 	close_file(Aout);
 	close_file(Lout);

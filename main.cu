@@ -13,6 +13,7 @@ using namespace __third_party__;
 //#include "test/cholesky-dense-timing.h"
 #include "test/cholesky-sparse.h"
 #include "test/cholesky-parallel.h"
+#include "test/cholmod.h"
 //#include "test/tree-tests.h"
 
 int main(int argc, char **argv) {
@@ -24,12 +25,13 @@ int main(int argc, char **argv) {
 //	std::string filename="./test/matrices/ex5.rb";
 //	std::string filename="./test/matrices/bcsstk01.rb";
 //	std::string filename="./test/matrices/bcsstk02.rb";
-//	std::string filename="./test/matrices/1138_bus.rb";
+	std::string filename="./test/matrices/1138_bus.rb";
 //	std::string filename="./test/matrices/bcsstk16.rb";
 //	std::string filename="./test/matrices/mhd4800b.rb";
-	std::string filename="./test/matrices/torsion1.rb";
-	size_t branchSize=400,threadnum=4;
-	double tolerance=0.1;
+//	std::string filename="./test/matrices/torsion1.rb";
+//	std::string filename="./test/matrices/cvxbqp1.rb";
+	size_t branchSize=200,threadnum=2;
+	double tolerance=0.75;
 	if(argc > 1)
 		filename = std::string(argv[1]);
 	if(argc > 3) {
@@ -46,10 +48,14 @@ int main(int argc, char **argv) {
 	cerr << "Matrix dimensions:\n\t"<<A.n()<<"x"<<A.m()<<"\tnzv: "<<A.nzv()<<endl;
 	cerr << "************************************************************"<< endl;
 	auto t1=sparseCholeskyWithReordering(A,"./");
-	auto t2=sparseCholeskyWithReorderingTT(A,"./TT-");
-	auto t3=sparseCholeskyWithReorderingP(A,branchSize,tolerance,threadnum,"./P-");
-	cerr<<"TT speedup:\t"<<t1/t2<<endl;
-	cerr<<"PTT speedup:\t"<<t1/t3<<endl;
+	auto t2=cholmod(A,true);
+	auto t3=cholmod(A,false);
+//	auto t2=sparseCholeskyWithReorderingTT(A,"./TT-");
+	auto t4=sparseCholeskyWithReorderingP(A,branchSize,tolerance,threadnum,"./P-");
+	cerr<<"Serial-CHOLMOD speedup:\t\t"<<t2/t1<<endl;
+	cerr<<"Supernodal-simplicial speedup:\t"<<t3/t2<<endl;
+	cerr<<"PTT-Serial speedup:\t\t"<<t1/t4<<endl;
+	cerr<<"CHOL-PTT speedup:\t\t"<<__min__(t2,t3)/t4<<endl;
 	cerr << "************************************************************"<< endl;
 	cerr << "*                  Execution ended                         *"<< endl;
 	cerr << "************************************************************"<< endl;

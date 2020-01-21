@@ -13,8 +13,6 @@ void eliminateVariable(MatrixCXSHandler<T,IT>& L,MatrixCXSHandler<T,IT>& A,Matri
 		if(k<=i)
 			c[i]=A.values(it);
 	}
-//	IT varn=RP.ptr(k+1)-RP.ptr(k);
-//#pragma omp parallel for num_threads(2) if(varn>40)
 	for(IT it=RP.ptr(k);it<(RP.ptr(k+1)-1);++it) {
 		IT j=RP.indxs(it);
 		T lkj=L.values(p[j]);
