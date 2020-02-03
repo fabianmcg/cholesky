@@ -2,10 +2,13 @@
 #define __VECTOR_TYPES_CORE_H__
 #include <type_traits>
 
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
+#include "../macros/compiler.h"
+#include "../macros/functions.h"
 
-#include "../macro-definitions.h"
 #include "../meta/meta.h"
 #include "fundamental-types.h"
 

@@ -1,9 +1,9 @@
-#ifndef __SCALAR_OPERATORS_MATH_CUH__
-#define __SCALAR_OPERATORS_MATH_CUH__
+#ifndef __SCALAR_OPERATORS_MATH_CORE_H__
+#define __SCALAR_OPERATORS_MATH_CORE_H__
 
-#include "../macro-definitions.h"
-#include "arithmetic.cuh"
-#include "elemental-functions.cuh"
+#include "../macros/macros.h"
+#include "arithmetic.h"
+#include "elemental-functions.h"
 
 namespace __core__ {
 namespace __math__ {
@@ -251,7 +251,7 @@ struct scalar_rsqrt {
 
 //******************************************************************************************************************************************************************************
 //******************************************************************************************************************************************************************************
-
+#ifdef CUDA_SUPPORT_COREQ
 struct scalar_erf {
 	template <typename V=void> __optimize__ __forceinline__ __forceflatten__ __host_device__ static auto fn(V x) {
 		return __erf__<V>(x);
@@ -260,6 +260,7 @@ struct scalar_erf {
 		return __erf__<V>(x);
 	}
 };
+
 struct scalar_normcdf {
 	template <typename V=void> __optimize__ __forceinline__ __forceflatten__ __host_device__ static auto fn(V x) {
 		return __normcdf__<V>(x);
@@ -276,6 +277,7 @@ struct scalar_normcdfinv {
 		return __normcdfinv__<V>(x);
 	}
 };
+#endif
 }
 }
 #endif

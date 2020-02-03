@@ -1,10 +1,10 @@
-#ifndef __VECTOR_ARITHMETIC_MATH_CUH__
-#define __VECTOR_ARITHMETIC_MATH_CUH__
+#ifndef __VECTOR_ARITHMETIC_MATH_CORE_H__
+#define __VECTOR_ARITHMETIC_MATH_CORE_H__
 
-#include "../macro-definitions.h"
+#include "../macros/macros.h"
 #include "../meta/meta.h"
 #include "../types/types.h"
-#include "arithmetic.cuh"
+#include "arithmetic.h"
 
 namespace __core__ {
 namespace __math__ {

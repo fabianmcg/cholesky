@@ -1,5 +1,5 @@
-#ifndef __MACRO_DEFINITIONS_DEBUG_H__
-#define __MACRO_DEFINITIONS_DEBUG_H__
+#ifndef __MACRO_DEFINITIONS_DEBUG_CORE_H__
+#define __MACRO_DEFINITIONS_DEBUG_CORE_H__
 
 #define __CHOOSE_MACRO_DEBUG__(_0,_1,_2,_3,_4,_5,_6, name, ...) name
 #define __BAD_ARG_COUNT_DEBUG_MACRO__(...) static_assert(false,"Bad quantity of arguments in macro, line: "+to_string(__LINE__)+", in file: "+__FILE__)
@@ -27,6 +27,7 @@
 #define __ERROR_PRINTER__(...) __ERROR_PRINTER_HELPER__(__IS_NOT_EMPTY_DEBUG__(__VA_ARGS__),__VA_ARGS__)
 #define error(...) __CHOOSE_MACRO_DEBUG__(__VA_ARGS__,__ERROR_PRINTER_7__,__ERROR_PRINTER_6__,__ERROR_PRINTER_5__,__ERROR_PRINTER_4__,__ERROR_PRINTER_3__,__ERROR_PRINTER_2__,__ERROR_PRINTER__)(__VA_ARGS__)
 
+#if defined(__CUDARUNTIMEQ__)
 #define __CUDA_ERROR_PRINTER_6__(error_code,error_type,out_type,file,frmt_type,level_type) __debug__::__debug_private__::__cuda_error__<error_type,out_type,frmt_type,level_type>::check(error_code,"CUDA error:\t",__FILE__,__LINE__,file)
 #define __CUDA_ERROR_PRINTER_5__(error_code,error_type,out_type,file,frmt_type) __debug__::__debug_private__::__cuda_error__<error_type,out_type,frmt_type>::check(error_code,"CUDA error:\t",__FILE__,__LINE__,file)
 #define __CUDA_ERROR_PRINTER_4__(error_code,error_type,out_type,file) __debug__::__debug_private__::__cuda_error__<error_type,out_type>::check(error_code,"CUDA error:\t",__FILE__,__LINE__,file)
@@ -47,6 +48,19 @@
 #define __CHECK_CUDA_ERROR_PRINTER_HELPER__(type,...) __INVOKE_PASTE_3__(__CHECK_CUDA_ERROR_PRINTER_,type,__)(__VA_ARGS__)
 #define __CHECK_CUDA_ERROR_PRINTER__(...) __CHECK_CUDA_ERROR_PRINTER_HELPER__(__IS_NOT_EMPTY_DEBUG__(__VA_ARGS__),__VA_ARGS__)
 #define check_cuda_error(...) __CHOOSE_MACRO_DEBUG__(__VA_ARGS__,__BAD_ARG_COUNT_DEBUG_MACRO__,__BAD_ARG_COUNT_DEBUG_MACRO__,__CHECK_CUDA_ERROR_PRINTER_5__,__CHECK_CUDA_ERROR_PRINTER_4__,__CHECK_CUDA_ERROR_PRINTER_3__,__CHECK_CUDA_ERROR_PRINTER_2__,__CHECK_CUDA_ERROR_PRINTER__)(__VA_ARGS__)
+#else
+#define __CUDA_ERROR_PRINTER_1__(error_code,...) ((void)0)
+#define __CUDA_ERROR_PRINTER_0__(...) ((void)0)
+#define __CUDA_ERROR_PRINTER_HELPER__(type,...) __INVOKE_PASTE_3__(__CUDA_ERROR_PRINTER_,type,__)(__VA_ARGS__)
+#define __CUDA_ERROR_PRINTER__(...) __CUDA_ERROR_PRINTER_HELPER__(__IS_NOT_EMPTY_DEBUG__(__VA_ARGS__),__VA_ARGS__)
+#define cuda_error(...) __CHOOSE_MACRO_DEBUG__(__VA_ARGS__,__BAD_ARG_COUNT_DEBUG_MACRO__,__CUDA_ERROR_PRINTER_1__,__CUDA_ERROR_PRINTER_1__,__CUDA_ERROR_PRINTER_1__,__CUDA_ERROR_PRINTER_1__,__CUDA_ERROR_PRINTER_1__,__CUDA_ERROR_PRINTER__)(__VA_ARGS__)
+
+#define __CHECK_CUDA_ERROR_PRINTER_1__(...) ((void)0)
+#define __CHECK_CUDA_ERROR_PRINTER_0__(...) ((void)0)
+#define __CHECK_CUDA_ERROR_PRINTER_HELPER__(type,...) __INVOKE_PASTE_3__(__CHECK_CUDA_ERROR_PRINTER_,type,__)(__VA_ARGS__)
+#define __CHECK_CUDA_ERROR_PRINTER__(...) __CHECK_CUDA_ERROR_PRINTER_HELPER__(__IS_NOT_EMPTY_DEBUG__(__VA_ARGS__),__VA_ARGS__)
+#define check_cuda_error(...) __CHOOSE_MACRO_DEBUG__(__VA_ARGS__,__BAD_ARG_COUNT_DEBUG_MACRO__,__CHECK_CUDA_ERROR_PRINTER_1__,__CHECK_CUDA_ERROR_PRINTER_1__,__CHECK_CUDA_ERROR_PRINTER_1__,__CHECK_CUDA_ERROR_PRINTER_1__,__CHECK_CUDA_ERROR_PRINTER_1__,__CHECK_CUDA_ERROR_PRINTER__)(__VA_ARGS__)
+#endif
 
 #else
 #define __ERROR_PRINTER_1__(condition,...) condition

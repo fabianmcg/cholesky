@@ -62,9 +62,9 @@ double cholmod(const __core__::MatrixCXS<double,int,__core__::cpuAllocator,__cor
     cholmod_factorize(&ASP,LSP,&suiteSparse) ;
     timer.stop();
     if(supernodal)
-    	cerr<<"CHOLMOD supernodal:"<<endl<<"\tElapsed time: "<<timer<<endl<<endl;
+    	cerr<<"CHOLMOD supernodal:"<<endl<<"\tElapsed time: "<<timer<<"\t"<<suiteSparse.cholmod_cpu_potrf_time+suiteSparse.cholmod_cpu_gemm_time+suiteSparse.cholmod_cpu_syrk_time+suiteSparse.cholmod_cpu_trsm_time+suiteSparse.cholmod_assemble_time<<endl<<endl;
     else
-        cerr<<"CHOLMOD simplicial:"<<endl<<"\tElapsed time: "<<timer<<endl<<endl;
+        cerr<<"CHOLMOD simplicial:"<<endl<<"\tElapsed time: "<<timer<<"\t"<<suiteSparse.cholmod_cpu_potrf_time<<endl<<endl;
     error(suiteSparse.status==CHOLMOD_OK,"Cholmod error, matrix is not PD");
     Lsparse=cholmod_factor_to_sparse(LSP, &suiteSparse);
     cholmod_free_factor(&LSP,&suiteSparse);

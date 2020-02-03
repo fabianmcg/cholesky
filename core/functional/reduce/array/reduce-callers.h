@@ -3,13 +3,21 @@
 
 #include <type_traits>
 
+#include "../../../macros/definitions.h"
+#if defined(CUDA_SUPPORT_COREQ)
 #include <cuda_runtime.h>
+#endif
+#include "../../../macros/compiler.h"
+#include "../../../macros/functions.h"
 
-#include "../../../macro-definitions.h"
 #include "../../../debug/debug.h"
 #include "../../../meta/meta.h"
 #include "../../../types/types.h"
+
+#if defined(CUDA_SUPPORT_COREQ)
 #include "reduce-kernels.cuh"
+#endif
+
 #include "reduce-kernels.h"
 #include "execution-policy.h"
 
@@ -30,6 +38,7 @@ template <typename policy=ReduceArrayExecutionPolicy<>> __host_device__ __optimi
 	return reduceBufferSize(size,policy::syncpointsQ,policy::NIT,policy::blockdim);
 }
 
+#if defined(CUDA_SUPPORT_COREQ)
 template <typename RFT,bool syncpointsQ,bool contiguousQ,int NIT,int blockdim,int minWork,bool unrolled=true,typename RT=void,typename DT=void,typename IT=void,enable_IT<!contains_type_CE<void,RT,DT,IT>()> = 0> __optimize__
 void reduce_gpu(RT *buffer,DT *arr,IT size,const cudaStream_t& stream=0) {
 	constexpr IT work=blockdim*NIT;
@@ -393,6 +402,7 @@ void reduce_apply_gpu(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,RT init_value,const
 		sbuffer=data;
 	}
 }
+#endif
 
 template <typename RFT,int threadnum,typename RT=double,typename data_T=double,typename IT=int> __optimize__
 RT reduce_cpu(RT& result,CRESTRICT_Q(data_T*) arr,IT size) {
@@ -434,166 +444,211 @@ RT reduce_apply_cpu(RT& result,CRESTRICT_Q(data_T1*) arr1,CRESTRICT_Q(data_T1*) 
 }
 
 template <typename RFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,int device,const cudaStream_t& stream=0) {
+void reduce(RT *buffer,DT *arr,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_gpu<RFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
 	}
 	else
 		reduce_cpu<RFT,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,int device,const cudaStream_t& stream=0) {
+void reduce(RT *buffer,DT *arr,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_gpu<RFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
 	}
 	else
 		reduce_cpu<RFT,IV,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,RT init_value,int device,const cudaStream_t& stream=0) {
+void reduce(RT *buffer,DT *arr,IT size,RT init_value,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_gpu<RFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,init_value,stream);
+#endif
 	}
 	else
 		reduce_cpu<RFT,policy::threadnum>(*buffer,arr,size,init_value);
 }
 template <typename RFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce(RT *buffer,DT *arr,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_gpu<RFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
+	}
 	else
 		reduce_cpu<RFT,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce(RT *buffer,DT *arr,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_gpu<RFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
+	}
 	else
 		reduce_cpu<RFT,IV,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce(RT *buffer,DT *arr,IT size,RT init_value,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce(RT *buffer,DT *arr,IT size,RT init_value,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_gpu<RFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,init_value,stream);
+#endif
+	}
 	else
 		reduce_cpu<RFT,policy::threadnum>(*buffer,arr,size,init_value);
 }
 
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT *arr,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename AFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT *arr,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,IV,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,RT init_value,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT *arr,IT size,RT init_value,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,init_value,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr,size,init_value);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT *arr,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename AFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT *arr,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,IV,policy::threadnum>(*buffer,arr,size);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT=void,typename IT=void>
-void reduce_apply(RT *buffer,DT *arr,IT size,RT init_value,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT *arr,IT size,RT init_value,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr,size,init_value,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr,size,init_value);
 }
 
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr1,arr2,size);
 }
 template <typename RFT,typename AFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,IV,policy::threadnum>(*buffer,arr1,arr2,size);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,RT init_value,int device,const cudaStream_t& stream=0) {
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,RT init_value,int device,const StreamType& stream=(StreamType)0) {
 	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		if(device>=0) {
 			cuda_error(cudaSetDevice(device),API_ERROR);
 		}
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,init_value,stream);
+#endif
 	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr1,arr2,size,init_value);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr1,arr2,size);
 }
 template <typename RFT,typename AFT,typename IV,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,IV,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,IV,policy::threadnum>(*buffer,arr1,arr2,size);
 }
 template <typename RFT,typename AFT,DeviceType location,typename policy=ReduceArrayExecutionPolicy<>,typename RT=void,typename DT1=void,typename DT2=void,typename IT=void>
-void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,RT init_value,const cudaStream_t& stream=0) {
-	if(location!=HOST)
+void reduce_apply(RT *buffer,DT1 *arr1,DT2 *arr2,IT size,RT init_value,const StreamType& stream=(StreamType)0) {
+	if(location!=HOST) {
+#if defined(CUDA_SUPPORT_COREQ)
 		reduce_apply_gpu<RFT,AFT,policy::syncpointsQ,policy::contiguousQ,policy::NIT,policy::blockdim,policy::minWork>(buffer,arr1,arr2,size,init_value,stream);
+#endif
+	}
 	else
 		reduce_apply_cpu<RFT,AFT,policy::threadnum>(*buffer,arr1,arr2,size,init_value);
 }

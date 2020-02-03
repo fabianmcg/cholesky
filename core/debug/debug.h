@@ -3,7 +3,7 @@
 
 #include "enum-definitions.h"
 #include "debuggers.h"
-#include "cuda-debuggers.cuh"
+#include "cuda-debuggers.h"
 #include "timing.h"
 #include "macro-definitions.h"
 

@@ -1,15 +1,16 @@
-#ifndef __TYPE_CAST_CUH__
-#define __TYPE_CAST_CUH__
+#ifndef __TYPE_CAST_CORE_H__
+#define __TYPE_CAST_CORE_H__
 
-#include <cmath>
 #include <limits>
 #include <type_traits>
 
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
+#include "../macros/compiler.h"
 #include <math.h>
 
-#include "../macro-definitions.h"
 #include "../enum-definitions.h"
 #include "enum-definitions.h"
 

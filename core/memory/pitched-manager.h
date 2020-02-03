@@ -1,7 +1,7 @@
-#ifndef __MEMORY_PITCHED_MANAGER_H__
-#define __MEMORY_PITCHED_MANAGER_H__
+#ifndef __PITCHED_MANAGER_MEMORY_CORE_H__
+#define __PITCHED_MANAGER_MEMORY_CORE_H__
 
-#include "../macro-definitions.h"
+#include "../macros/compiler.h"
 #include "../enum-definitions.h"
 #include "../debug/debug.h"
 #include "../meta/meta.h"
@@ -42,18 +42,18 @@ public:
 	cudaPitchedPtr allocate(std::size_t xsize,std::size_t ysize,std::size_t zsize,int dev=-1);
 
 	template <typename T=void,typename MTT=MT,enable_IT<is_same_CE<MTT,void>()> = 0> static
-	cudaPitchedPtr callocate(std::size_t size,int dev=-1,cudaStream_t stream=DEFAULT_STREAM);
+	cudaPitchedPtr callocate(std::size_t size,int dev=-1,StreamType stream=(StreamType)0);
 	template <typename T=void,typename MTT=MT,enable_IT<!is_same_CE<MTT,void>()> = 0> static
-	cudaPitchedPtr callocate(std::size_t size,int dev=-1,cudaStream_t stream=DEFAULT_STREAM);
+	cudaPitchedPtr callocate(std::size_t size,int dev=-1,StreamType stream=(StreamType)0);
 
 	template <typename MDT=MT,typename MST=MT,typename T=void,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()> = 0> static
-	cudaPitchedPtr reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	cudaPitchedPtr reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,typename T=void,enable_IT<!(is_same_CE<MDT,void>()||is_same_CE<MST,void>())> = 0> static
-	T* reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	T* reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,typename T=void,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()> = 0> static
-	T* recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	T* recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,typename T=void,enable_IT<!(is_same_CE<MDT,void>()||is_same_CE<MST,void>())> = 0> static
-	T* recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	T* recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream=(StreamType)0);
 
 	template <typename MTT=MT,typename T=void,enable_IT<is_same_CE<MTT,void>()> = 0> static
 	void deallocate(T* ptr,int dev=-1);
@@ -61,28 +61,28 @@ public:
 	void deallocate(T* ptr,int dev=-1);
 
 	template <typename MTT=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<is_same_CE<MTT,void>()> = 0> static
-	void set(T* ptr,std::size_t size,int value,cudaStream_t stream=DEFAULT_STREAM);
+	void set(T* ptr,std::size_t size,int value,StreamType stream=(StreamType)0);
 	template <typename MTT=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<!is_same_CE<MTT,void>()> = 0> static
-	void set(T* ptr,std::size_t size,int value,cudaStream_t stream=DEFAULT_STREAM);
+	void set(T* ptr,std::size_t size,int value,StreamType stream=(StreamType)0);
 	template <typename MTT=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<is_same_CE<MTT,void>()> = 0> static
-	void set(T* ptr,std::size_t size,int value,int dev,cudaStream_t stream=DEFAULT_STREAM);
+	void set(T* ptr,std::size_t size,int value,int dev,StreamType stream=(StreamType)0);
 	template <typename MTT=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<!is_same_CE<MTT,void>()> = 0> static
-	void set(T* ptr,std::size_t size,int value,int dev,cudaStream_t stream=DEFAULT_STREAM);
+	void set(T* ptr,std::size_t size,int value,int dev,StreamType stream=(StreamType)0);
 
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,int dev,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,int dev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,int dev,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,int dev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())&&(__memory_private__::transfer_type<MDT,MST>()==GPU_GPU)> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream=(StreamType)0);
 	template <typename MDT=MT,typename MST=MT,SyncBehaviorType sync_behavior=ASYNC,typename T=void,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())&&(__memory_private__::transfer_type<MDT,MST>()!=GPU_GPU)> = 0> static
-	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream=DEFAULT_STREAM);
+	void copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream=(StreamType)0);
 };
 template <typename MT> Pitched3DMemoryManager<MT>::Pitched3DMemoryManager(int dev) {
 }
@@ -130,29 +130,29 @@ T* Pitched3DMemoryManager<MT>::allocate(std::size_t size,int dev) {
 	return ptr;
 }
 template <typename MT> template <typename T,typename MTT,enable_IT<is_same_CE<MTT,void>()>>
-T* Pitched3DMemoryManager<MT>::callocate(std::size_t size,int dev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::callocate(std::size_t size,int dev,StreamType stream) {
 }
 template <typename MT> template <typename T,typename MTT,enable_IT<!is_same_CE<MTT,void>()>>
-T* Pitched3DMemoryManager<MT>::callocate(std::size_t size,int dev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::callocate(std::size_t size,int dev,StreamType stream) {
 	T* ptr=allocate<T,MTT>(size,dev);
 	set<MTT,SYNC>(ptr,size,0,dev,stream);
 	return ptr;
 }
 template <typename MT> template <typename MDT,typename MST,typename T,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()>>
-T* Pitched3DMemoryManager<MT>::reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream) {
 }
 template <typename MT> template <typename MDT,typename MST,typename T,enable_IT<!(is_same_CE<MDT,void>()||is_same_CE<MST,void>())>>
-T* Pitched3DMemoryManager<MT>::reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::reallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream) {
 	T* tmp=allocate<T,MDT>(size,ddev);
 	copy<MDT,MST>(tmp,sptr,std::min(size,ssize),ddev,sdev,stream);
 	deallocate<MST>(sptr,ssize);
 	return tmp;
 }
 template <typename MT> template <typename MDT,typename MST,typename T,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()>>
-T* Pitched3DMemoryManager<MT>::recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream) {
 }
 template <typename MT> template <typename MDT,typename MST,typename T,enable_IT<!(is_same_CE<MDT,void>()||is_same_CE<MST,void>())>>
-T* Pitched3DMemoryManager<MT>::recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,cudaStream_t stream) {
+T* Pitched3DMemoryManager<MT>::recallocate(std::size_t size,T* sptr,std::size_t ssize,int ddev,int sdev,StreamType stream) {
 	T* tmp=allocate<T,MDT>(size,ddev);
 	set<MDT,SYNC>(tmp,size,0,ddev,stream);
 	copy<MDT,MST>(tmp,sptr,std::min(size,ssize),ddev,sdev,stream);
@@ -173,41 +173,41 @@ void Pitched3DMemoryManager<MT>::deallocate(T* ptr,int dev) {
 }
 
 template <typename MT> template <typename MTT,SyncBehaviorType sync_behavior,typename T,enable_IT<is_same_CE<MTT,void>()>>
-void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,StreamType stream) {
 }
 template <typename MT> template <typename MTT,SyncBehaviorType sync_behavior,typename T,enable_IT<!is_same_CE<MTT,void>()>>
-void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,StreamType stream) {
 	set<MTT,sync_behavior>(ptr,size,value,-1,stream);
 }
 template <typename MT> template <typename MTT,SyncBehaviorType sync_behavior,typename T,enable_IT<is_same_CE<MTT,void>()>>
-void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,int dev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,int dev,StreamType stream) {
 }
 template <typename MT> template <typename MTT,SyncBehaviorType sync_behavior,typename T,enable_IT<!is_same_CE<MTT,void>()>>
-void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,int dev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::set(T* ptr,std::size_t size,int value,int dev,StreamType stream) {
 	if(ptr!=nullptr&&size>0)
 		__memset__<MTT,sync_behavior>(ptr,value,size,dev,stream);
 }
 
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,StreamType stream) {
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,StreamType stream) {
 	copy<MDT,MST,sync_behavior>(dptr,sptr,size,-1,stream);
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int dev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int dev,StreamType stream) {
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int dev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int dev,StreamType stream) {
 	if(sptr!=nullptr&&dptr!=nullptr&&size>0)
 		__memcpy__<MDT,MST,sync_behavior>(dptr,sptr,size,dev,stream);
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<is_same_CE<MDT,void>()||is_same_CE<MST,void>()>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream) {
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())&&(__memory_private__::transfer_type<MDT,MST>()==GPU_GPU)>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream) {
 	if(sptr!=nullptr&&dptr!=nullptr&&size>0) {
 		if(sdev!=ddev)
 			__memcpy__<MDT,MST,sync_behavior>(dptr,sptr,size,ddev,sdev,stream);
@@ -216,7 +216,7 @@ void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,
 	}
 }
 template <typename MT> template <typename MDT,typename MST,SyncBehaviorType sync_behavior,typename T,enable_IT<(!is_same_CE<MDT,void>())&&(!is_same_CE<MST,void>())&&(__memory_private__::transfer_type<MDT,MST>()!=GPU_GPU)>>
-void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,cudaStream_t stream) {
+void Pitched3DMemoryManager<MT>::copy(T* dptr,T* sptr,std::size_t size,int ddev,int sdev,StreamType stream) {
 	if(sptr!=nullptr&&dptr!=nullptr&&size>0) {
 		__memcpy__<MDT,MST,sync_behavior>(dptr,sptr,size,ddev,stream);
 	}

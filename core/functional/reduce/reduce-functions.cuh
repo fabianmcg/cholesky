@@ -1,11 +1,10 @@
-#ifndef __REDUCE_FUNCTIONS_REDUCE_CUH__
-#define __REDUCE_FUNCTIONS_REDUCE_CUH__
+#ifndef __REDUCE_FUNCTIONS_REDUCE_FUNCTIONAL_CORE_CUH__
+#define __REDUCE_FUNCTIONS_REDUCE_FUNCTIONAL_CORE_CUH__
 
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 #include <cooperative_groups.h>
 
-#include "../../macro-definitions.h"
+#include "../../macros/macros.h"
 #include "../../meta/meta.h"
 #include "../../types/types.h"
 

@@ -1,5 +1,5 @@
-#ifndef __DEBUGGERS_DEBUG_H__
-#define __DEBUGGERS_DEBUG_H__
+#ifndef __DEBUGGERS_DEBUG_CORE_H__
+#define __DEBUGGERS_DEBUG_CORE_H__
 
 #include <cassert>
 #include <iostream>

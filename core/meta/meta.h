@@ -1,10 +1,10 @@
-#ifndef __META_H__
-#define __META_H__
+#ifndef __META_CORE_H__
+#define __META_CORE_H__
 
-#include "constexpr.cuh"
-#include "types.cuh"
-#include "constant-for.cuh"
-#include "constant-for-sequence.cuh"
+#include "constexpr.h"
+#include "types.h"
+#include "constant-for.h"
+//#include "constant-for-sequence.h"
 
 namespace __core__ {
 using namespace __core__::__meta__;

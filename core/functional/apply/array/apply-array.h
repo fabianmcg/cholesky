@@ -1,7 +1,7 @@
-#ifndef __APPLY_ARRAY_FUNCTIONAL_H__
-#define __APPLY_ARRAY_FUNCTIONAL_H__
+#ifndef __APPLY_ARRAY_FUNCTIONAL_CORE_H__
+#define __APPLY_ARRAY_FUNCTIONAL_CORE_H__
 
-#include "apply-callers.cuh"
+#include "apply-callers.h"
 
 namespace __core__ {
 namespace __functional__ {

@@ -1,9 +1,9 @@
-#ifndef __REDUCE_KERNELS_H__
-#define __REDUCE_KERNELS_H__
+#ifndef __REDUCE_KERNELS_FUNCTIONAL_CORE_H__
+#define __REDUCE_KERNELS_FUNCTIONAL_CORE_H__
 
 #include <omp.h>
 
-#include "../../../macro-definitions.h"
+#include "../../../macros/macros.h"
 #include "../../../types/types.h"
 #include "../../../meta/meta.h"
 

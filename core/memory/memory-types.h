@@ -1,8 +1,10 @@
-#ifndef __MEMORY_TYPES_H__
-#define __MEMORY_TYPES_H__
+#ifndef __MEMORY_TYPES_MEMORY_CORE_H__
+#define __MEMORY_TYPES_MEMORY_CORE_H__
 
+#include "../macros/definitions.h"
+#ifdef __CUDARUNTIMEQ__
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
 
 #include "../enum-definitions.h"
 
@@ -24,8 +26,13 @@ template <DeviceType memory_location,MemoryType TYPE,bool PORTABLE=false,bool MA
 	static constexpr bool is_write_combined=(type==PINNED_MEM)?WRITE_COMBINED:false;
 	static constexpr bool is_attach_global=(type==MANAGED_MEM)?ATTACH_GLOBAL:false;
 	static constexpr bool is_attach_host=(type==MANAGED_MEM)?(!ATTACH_GLOBAL):false;
+#if defined(__CUDARUNTIMEQ__)
 	static constexpr int managed_F=(type==MANAGED_MEM)?((ATTACH_GLOBAL==true)?cudaMemAttachGlobal:cudaMemAttachHost):0;
 	static constexpr int host_alloc_F=(type==NORMAL_MEM)?0:((is_portable?cudaHostAllocPortable:0)|(is_mapped?cudaHostAllocMapped:0)|(is_write_combined?cudaHostAllocWriteCombined:0));
+#else
+	static constexpr int managed_F=0;
+	static constexpr int host_alloc_F=0;
+#endif
 };
 
 template <MemoryType type=NORMAL_MEM,bool portable=false,bool mapped=false,bool write_combined=false> using cpu_memory_T=__MemoryType__<HOST,type,portable,mapped,write_combined,false>;

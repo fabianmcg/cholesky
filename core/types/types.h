@@ -6,8 +6,8 @@
 #include "fundamental-types.h"
 #include "vector-types.h"
 #include "vector-types-default.h"
-#include "type-rw.cuh"
-#include "type-cast.cuh"
+#include "type-rw.h"
+#include "type-cast.h"
 
 namespace __core__ {
 using namespace __core__::__type__;

@@ -1,5 +1,5 @@
-#ifndef __ARRAY_DATA_STRUCTURES_H__
-#define __ARRAY_DATA_STRUCTURES_H__
+#ifndef __ARRAY_DATA_STRUCTURES_CORE_H__
+#define __ARRAY_DATA_STRUCTURES_CORE_H__
 
 #include "../memory/memory.h"
 #include "../util/util.h"
@@ -30,8 +30,8 @@ public:
 	Array(const Array& array,const Allocator& allocator);
 	Array(std::size_t size,const Allocator& allocator=Allocator());
 	Array(std::size_t size,int dev,const Allocator& allocator=Allocator());
-	Array(std::size_t size,int dev,int val,StreamType stream=0,const Allocator& allocator=Allocator());
-	template <typename allocatorType_T> Array(const Array<T,allocatorType_T>& array,int dev=-1,StreamType stream=0,const Allocator& allocator=Allocator());
+	Array(std::size_t size,int dev,int val,StreamType stream=(StreamType)0,const Allocator& allocator=Allocator());
+	template <typename allocatorType_T> Array(const Array<T,allocatorType_T>& array,int dev=-1,StreamType stream=(StreamType)0,const Allocator& allocator=Allocator());
 	~Array();
 
 	Array& operator=(Array&& array);
@@ -62,26 +62,27 @@ public:
 	void free_allocator();
 	void clear();
 	void expand();
-	void reserve(std::size_t size,StreamType stream=0);
-	void resize(std::size_t size,int val=0,StreamType stream=0);
+	void reserve(std::size_t size,StreamType stream=(StreamType)0);
+	void reserve(std::size_t size,int val,StreamType stream);
+	void resize(std::size_t size,int val=0,StreamType stream=(StreamType)0);
 
-	void set(int val=0,StreamType stream=0);
-	void set(int val,std::size_t begin,std::size_t len,StreamType stream=0);
+	void set(int val=0,StreamType stream=(StreamType)0);
+	void set(int val,std::size_t begin,std::size_t len,StreamType stream=(StreamType)0);
 
 	void detach();
 	template <typename memory_T> void attach(T* array,std::size_t size,std::size_t capacity,int sdev=-1);
 
 	Array& move(Array&& array);
-	template <typename memory_T,bool check=true,enable_IT<check> = 0> Array& import(T* array,std::size_t begin,std::size_t size,int sdev=-1,StreamType stream=0);
-	template <typename memory_T,bool check=true,enable_IT<!check> = 0> Array& import(T* array,std::size_t begin,std::size_t size,int sdev=-1,StreamType stream=0);
-	template <typename memory_T,bool check=true,enable_IT<check> = 0> Array& import(T* array,std::size_t size,int sdev=-1,StreamType stream=0);
-	template <typename memory_T,bool check=true,enable_IT<!check> = 0> Array& import(T* array,std::size_t size,int sdev=-1,StreamType stream=0);
+	template <typename memory_T,bool check=true,enable_IT<check> = 0> Array& import(T* array,std::size_t begin,std::size_t size,int sdev=-1,StreamType stream=(StreamType)0);
+	template <typename memory_T,bool check=true,enable_IT<!check> = 0> Array& import(T* array,std::size_t begin,std::size_t size,int sdev=-1,StreamType stream=(StreamType)0);
+	template <typename memory_T,bool check=true,enable_IT<check> = 0> Array& import(T* array,std::size_t size,int sdev=-1,StreamType stream=(StreamType)0);
+	template <typename memory_T,bool check=true,enable_IT<!check> = 0> Array& import(T* array,std::size_t size,int sdev=-1,StreamType stream=(StreamType)0);
 	template <bool check=true,typename allocatorType_T=void,enable_IT<check> = 0>
-	Array& import(const Array<T,allocatorType_T>& array,std::size_t sbegin,std::size_t dbegin=0,std::size_t size=npos,StreamType stream=0);
+	Array& import(const Array<T,allocatorType_T>& array,std::size_t sbegin,std::size_t dbegin=0,std::size_t size=npos,StreamType stream=(StreamType)0);
 	template <bool check=true,typename allocatorType_T=void,enable_IT<!check> = 0>
-	Array& import(const Array<T,allocatorType_T>& array,std::size_t sbegin,std::size_t dbegin=0,std::size_t size=npos,StreamType stream=0);
-	template <bool check=true,typename allocatorType_T=void,enable_IT<check> = 0> Array& import(const Array<T,allocatorType_T>& array,StreamType stream=0);
-	template <bool check=true,typename allocatorType_T=void,enable_IT<!check> = 0> Array& import(const Array<T,allocatorType_T>& array,StreamType stream=0);
+	Array& import(const Array<T,allocatorType_T>& array,std::size_t sbegin,std::size_t dbegin=0,std::size_t size=npos,StreamType stream=(StreamType)0);
+	template <bool check=true,typename allocatorType_T=void,enable_IT<check> = 0> Array& import(const Array<T,allocatorType_T>& array,StreamType stream=(StreamType)0);
+	template <bool check=true,typename allocatorType_T=void,enable_IT<!check> = 0> Array& import(const Array<T,allocatorType_T>& array,StreamType stream=(StreamType)0);
 };
 template <typename T,typename Allocator>
 Array<T,Allocator>::Array(int dev): __allocator__(Allocator(dev)) {
@@ -117,7 +118,7 @@ Array<T,Allocator>::Array(std::size_t size,int dev,const Allocator& allocator): 
 	__reserve__(size);
 	set();
 }
-template <typename T,typename Allocator>
+template <typename T,typename Allocator> 
 Array<T,Allocator>::Array(std::size_t size,int dev,int val,StreamType stream,const Allocator& allocator): __allocator__(allocator) {
 	__set_device__(dev);
 	__reserve__(size);
@@ -259,7 +260,7 @@ template <typename T,typename Allocator>
 void Array<T,Allocator>::expand() {
 	__size__=__capacity__;
 }
-template <typename T,typename Allocator>
+template <typename T,typename Allocator> 
 void Array<T,Allocator>::reserve(std::size_t size,StreamType stream) {
 	if(size<=__capacity__)
 		return ;
@@ -267,12 +268,24 @@ void Array<T,Allocator>::reserve(std::size_t size,StreamType stream) {
 		if(___device___<0)
 			__set_device__(-1);
 		__data__=__allocator__.template reallocate<memory_type,memory_type>(size,__data__,__size__,___device___,___device___,stream);
-		__size__=size;
-		__capacity__=__size__;
+		__capacity__=size;
 		__allocated_size__=__capacity__*__memory__::__memory_private__::__sizeof__<T,std::size_t>();
 	}
 }
-template <typename T,typename Allocator>
+template <typename T,typename Allocator> 
+void Array<T,Allocator>::reserve(std::size_t size,int val,StreamType stream) {
+	if(size<=__capacity__)
+		return ;
+	else {
+		if(___device___<0)
+			__set_device__(-1);
+		__data__=__allocator__.template reallocate<memory_type,memory_type>(size,__data__,__size__,___device___,___device___,stream);
+		set(val,__size__,size-__size__,stream);
+		__capacity__=size;
+		__allocated_size__=__capacity__*__memory__::__memory_private__::__sizeof__<T,std::size_t>();
+	}
+}
+template <typename T,typename Allocator> 
 void Array<T,Allocator>::resize(std::size_t size,int val,StreamType stream) {
 	if(size<=__capacity__)
 		__size__=size;
@@ -287,11 +300,11 @@ void Array<T,Allocator>::resize(std::size_t size,int val,StreamType stream) {
 	}
 }
 
-template <typename T,typename Allocator>
+template <typename T,typename Allocator> 
 void Array<T,Allocator>::set(int val,StreamType stream) {
 	__allocator__.template set<memory_type,ASYNC>(__data__,__capacity__,val,stream);
 }
-template <typename T,typename Allocator>
+template <typename T,typename Allocator> 
 void Array<T,Allocator>::set(int val,std::size_t begin,std::size_t len,StreamType stream) {
 	if(((begin+len)<=__capacity__)&&((begin+len)>begin))
 		__allocator__.template set<memory_type,ASYNC>(__data__+begin,len,val,stream);
@@ -349,6 +362,7 @@ Array<T,Allocator>& Array<T,Allocator>::import(T* array,std::size_t begin,std::s
 			free();
 			___device___=dev;
 			reserve(nsize,stream);
+			expand();
 			return import<memory_T,false>(array,begin,size,sdev,stream);
 		}
 		else

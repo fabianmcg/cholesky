@@ -1,12 +1,12 @@
-#ifndef __VECTOR_ELEMENTAL_FUNCTIONS_MATH_CUH__
-#define __VECTOR_ELEMENTAL_FUNCTIONS_MATH_CUH__
+#ifndef __VECTOR_ELEMENTAL_FUNCTIONS_MATH_CORE_H__
+#define __VECTOR_ELEMENTAL_FUNCTIONS_MATH_CORE_H__
 
-#include "../macro-definitions.h"
+#include "../macros/macros.h"
 #include "../meta/meta.h"
 #include "../types/types.h"
-#include "arithmetic.cuh"
-#include "elemental-functions.cuh"
-#include "vector-arithmetic.cuh"
+#include "arithmetic.h"
+#include "elemental-functions.h"
+#include "vector-arithmetic.h"
 
 namespace __core__ {
 namespace __math__ {

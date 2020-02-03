@@ -1,13 +1,7 @@
-#ifndef __ATOMIC_ADD_CUH__
-#define __ATOMIC_ADD_CUH__
-
-#include <cuda.h>
-#include <cuda_runtime.h>
-
-namespace __core__
-{
+#include "atomic-add.h"
+#ifdef CUDA_SUPPORT_COREQ
 #if __CUDA_ARCH__ < 600
-__device__ double atomicAdd(double* address, double val) {
+__device__ double __core__::atomicAdd(double* address, double val) {
 	unsigned long long int* address_as_ull=(unsigned long long int*)address;
 	unsigned long long int old = *address_as_ull,assumed;
 	do{
@@ -17,5 +11,4 @@ __device__ double atomicAdd(double* address, double val) {
 	return __longlong_as_double(old);
 }
 #endif
-}
 #endif

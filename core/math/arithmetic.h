@@ -1,12 +1,16 @@
-#ifndef __ARITHMETIC_MATH_CUH__
-#define __ARITHMETIC_MATH_CUH__
+#ifndef __ARITHMETIC_MATH_CORE_H__
+#define __ARITHMETIC_MATH_CORE_H__
 
 #include <cmath>
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
+#include <cuda_runtime.h>
+#endif
+#include "../macros/compiler.h"
+#include "../macros/functions.h"
 #include <math.h>
 
-#include "../macro-definitions.h"
 #include "../types/types.h"
 #include "../meta/meta.h"
 

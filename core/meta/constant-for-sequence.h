@@ -5,8 +5,8 @@
 
 #include <cuda.h>
 
-#include "constexpr.cuh"
-#include "types.cuh"
+#include "constexpr.h"
+#include "types.h"
 
 namespace __core__ {
 namespace __meta__ {

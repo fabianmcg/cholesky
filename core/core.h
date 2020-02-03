@@ -1,11 +1,8 @@
 #ifndef __CORE_H__
 #define __CORE_H__
 
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
-
-#include "macro-definitions.h"
+#include <cstdint>
+#include "macros/macros.h"
 #include "enum-definitions.h"
 #include "meta/meta.h"
 #include "debug/debug.h"

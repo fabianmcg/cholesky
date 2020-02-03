@@ -1,12 +1,16 @@
-#ifndef __VECTOR_MATH_CUH__
-#define __VECTOR_MATH_CUH__
+#ifndef __VECTOR_NORMS_MATH_CORE_H__
+#define __VECTOR_NORMS_MATH_CORE_H__
 
 #include <cmath>
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
+#include <cuda_runtime.h>
+#endif
+#include "../macros/compiler.h"
+#include "../macros/functions.h"
 #include <math.h>
 
-#include "../macro-definitions.h"
 #include "../types/types.h"
 #include "../meta/meta.h"
 

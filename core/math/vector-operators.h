@@ -1,20 +1,23 @@
-#ifndef __VECTOR_OPERATIONS_CUH__
-#define __VECTOR_OPERATIONS_CUH__
+#ifndef __VECTOR_OPERATIONS_MATH_CORE_CUH__
+#define __VECTOR_OPERATIONS_MATH_CORE_CUH__
 
 #include <cmath>
-#include <type_traits>
 
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
+#include "../macros/compiler.h"
+#include "../macros/functions.h"
+#include <math.h>
 
-#include "../macro-definitions.h"
 #include "../meta/meta.h"
 #include "../types/types.h"
-#include "arithmetic.cuh"
-#include "elemental-functions.cuh"
-#include "vector-norms.cuh"
+#include "arithmetic.h"
+#include "elemental-functions.h"
+#include "vector-norms.h"
 
-#include "vector-arithmetic.cuh"
+#include "vector-arithmetic.h"
 
 namespace __core__ {
 namespace __math__ {

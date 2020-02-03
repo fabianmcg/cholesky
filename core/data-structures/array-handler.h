@@ -1,8 +1,8 @@
-#ifndef __ARRAY_HANDLER_DATA_STRUCTURES_H__
-#define __ARRAY_HANDLER_DATA_STRUCTURES_H__
+#ifndef __ARRAY_HANDLER_DATA_STRUCTURES_CORE_H__
+#define __ARRAY_HANDLER_DATA_STRUCTURES_CORE_H__
 
 #include "array.h"
-#include "../types/type-rw.cuh"
+#include "../types/type-rw.h"
 
 namespace __core__ {
 namespace __data_structures__ {

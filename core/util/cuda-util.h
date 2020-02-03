@@ -1,16 +1,18 @@
-#ifndef __CUDA_UTIL_H__
-#define __CUDA_UTIL_H__
+#ifndef __CUDA_UTIL_CORE_H__
+#define __CUDA_UTIL_CORE_H__
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef __CUDARUNTIMEQ__
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
-#include <driver_types.h>
+#endif
+#include "../macros/compiler.h"
 
 #include "../enum-definitions.h"
 #include "../debug/debug.h"
 
 namespace __core__ {
 namespace __util__ {
+#ifdef __CUDARUNTIMEQ__
 namespace __cuda__ {
 __forceinline__  int device_count() {
 	int i=0;
@@ -52,6 +54,25 @@ bool is_ptr_at_dev(void *ptr,int dev) {
 	return dev==R.device;
 }
 }
+#else
+namespace __cuda__ {
+__forceinline__  int device_count() {
+	return 0;
+}
+inline int valid_device(const int i) {
+	return 0;
+}
+inline int get_device() {
+	return 0;
+}
+__forceinline__ bool visible_devices(int first_device,int second_device) {
+	return false;
+}
+bool is_ptr_at_dev(void *ptr,int dev) {
+	return 0;
+}
+}
+#endif
 }
 }
 #endif

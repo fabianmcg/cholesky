@@ -1,13 +1,15 @@
-#ifndef __CUDA_DEBUGGERS_DEBUG_CUH__
-#define __CUDA_DEBUGGERS_DEBUG_CUH__
+#ifndef __CUDA_DEBUGGERS_DEBUG_CORE_H__
+#define __CUDA_DEBUGGERS_DEBUG_CORE_H__
 
+#include "../macros/definitions.h"
+
+#if defined(__CUDARUNTIMEQ__)
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 
 #include "enum-definitions.h"
 #include "debuggers.h"
@@ -61,4 +63,5 @@ using cudaError_CT=__debug_private__::__cuda_error__<__error_type__,__error_out_
 static const cudaError_CT<> cuda_checker;
 }
 }
+#endif
 #endif

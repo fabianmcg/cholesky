@@ -1,12 +1,16 @@
-#ifndef __ELEMENTAL_FUNCTIONS_MATH_CUH__
-#define __ELEMENTAL_FUNCTIONS_MATH_CUH__
+#ifndef __ELEMENTAL_FUNCTIONS_MATH_CORE_H__
+#define __ELEMENTAL_FUNCTIONS_MATH_CORE_H__
 
 #include <cmath>
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
+#include <cuda_runtime.h>
 #include <math.h>
+#endif
+#include "../macros/compiler.h"
+#include "../macros/functions.h"
 
-#include "../macro-definitions.h"
 #include "../types/types.h"
 #include "../meta/meta.h"
 
@@ -516,33 +520,51 @@ template <> __forceinline__ __optimize__ __host_device__ float __erf__<float,0>(
 //*************************************************************************************************************************************************
 //*************************************************************************************************************************************************
 
+#if defined(CUDA_SUPPORT_COREQ)
 template <typename T,enable_IT<is_numeric_CE<T>()> = 0> __forceinline__ __optimize__ __host_device__ T __normcdf__(const T x) {
+#if defined(__CUDA_ARCH__)
 	return normcdf(static_cast<double>(x));
+#else
+	return 0;
+#endif
 }
 template <> __forceinline__ __optimize__ __host_device__ double __normcdf__<double,0>(const double x) {
+#if defined(__CUDA_ARCH__)
 	return normcdf(x);
+#else
+	return 0;
+#endif
 }
 template <> __forceinline__ __optimize__ __host_device__ float __normcdf__<float,0>(const float x) {
 #if defined(__CUDA_ARCH__)
 	return normcdff(x);
 #else
-	return normcdf(x);
+	return 0;
 #endif
 }
 
-template <typename T,enable_IT<is_numeric_CE<T>()> = 0> __forceinline__ __optimize__ __host_device__ T __normcdfinv__(const T x) {
+template <typename T,enable_IT<is_numeric_CE<T>()> = 0> __forceinline__ __optimize__ __device__ T __normcdfinv__(const T x) {
+#if defined(__CUDA_ARCH__)
 	return normcdfinv(static_cast<double>(x));
+#else
+	return 0;
+#endif
 }
-template <> __forceinline__ __optimize__ __host_device__ double __normcdfinv__<double,0>(const double x) {
+template <> __forceinline__ __optimize__ __device__ double __normcdfinv__<double,0>(const double x) {
+#if defined(__CUDA_ARCH__)
 	return normcdfinv(x);
+#else
+	return 0;
+#endif
 }
-template <> __forceinline__ __optimize__ __host_device__ float __normcdfinv__<float,0>(const float x) {
+template <> __forceinline__ __optimize__ __device__ float __normcdfinv__<float,0>(const float x) {
 #if defined(__CUDA_ARCH__)
 	return normcdfinvf(x);
 #else
-	return normcdfinv(x);
+	return 0;
 #endif
 }
+#endif
 }
 }
 #endif

@@ -1,5 +1,5 @@
-#ifndef __APPLY_FUNCTIONAL_H__
-#define __APPLY_FUNCTIONAL_H__
+#ifndef __APPLY_FUNCTIONAL_CORE_H__
+#define __APPLY_FUNCTIONAL_CORE_H__
 
 #include "array/apply-array.h"
 

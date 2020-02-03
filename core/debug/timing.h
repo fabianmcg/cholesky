@@ -1,12 +1,14 @@
-#ifndef __TIMING_H__
-#define __TIMING_H__
+#ifndef __TIMING_DEBUG_CORE_H__
+#define __TIMING_DEBUG_CORE_H__
 
 #include <chrono>
 #include <cmath>
 #include <iostream>
 
+#include "../macros/definitions.h"
+#ifdef __CUDARUNTIMEQ__
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
 
 namespace __core__ {
 namespace __debug__ {
@@ -24,6 +26,7 @@ struct cpu_timer {
 	}
 
 };
+#if defined(__CUDARUNTIMEQ__)
 struct gpu_timer {
 	cudaEvent_t t1;
 	cudaEvent_t t2;
@@ -50,21 +53,23 @@ struct gpu_timer {
 		return ((double)elapsed)*pow(10,-3);
 	}
 };
-
-std::ostream &operator<<(std::ostream &oss,const cpu_timer &timer) {
-	oss<<timer.elapsed_time();
-	return oss;
-}
 std::ostream &operator<<(std::ostream &oss,const gpu_timer &timer) {
 	oss<<timer.elapsed_time();
 	return oss;
 }
 
-template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const cpu_timer &timer) {
+template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const gpu_timer &timer) {
 	t=timer.elapsed_time();
 	return t;
 }
-template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const gpu_timer &timer) {
+#else
+typedef cpu_timer gpu_timer;
+#endif
+std::ostream &operator<<(std::ostream &oss,const cpu_timer &timer) {
+	oss<<timer.elapsed_time();
+	return oss;
+}
+template <typename T> __inline__ __attribute__((always_inline)) T& operator<<(T &t,const cpu_timer &timer) {
 	t=timer.elapsed_time();
 	return t;
 }

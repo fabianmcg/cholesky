@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "../debug/debug.h"
+#include "core-io.h"
 
 namespace __core__ {
 namespace __io__ {

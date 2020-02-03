@@ -1,13 +1,12 @@
-#ifndef __ARRAY_APPLY_KERNELS_CUH__
-#define __ARRAY_APPLY_KERNELS_CUH__
+#ifndef __ARRAY_APPLY_KERNELS_FUNCTIONAL_CORE_CUH__
+#define __ARRAY_APPLY_KERNELS_FUNCTIONAL_CORE_CUH__
 
 #include <type_traits>
 
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 #include <cooperative_groups.h>
 
-#include "../../../macro-definitions.h"
+#include "../../../macros/macros.h"
 #include "../../../meta/meta.h"
 #include "../../../types/types.h"
 

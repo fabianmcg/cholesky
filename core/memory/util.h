@@ -1,13 +1,13 @@
-#ifndef __MEM_UTIL_H__
-#define __MEM_UTIL_H__
+#ifndef __UTIL_MEMORY_CORE_H__
+#define __UTIL_MEMORY_CORE_H__
 
 #include <type_traits>
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef __CUDARUNTIMEQ__
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
 
-#include "../macro-definitions.h"
 #include "../enum-definitions.h"
 #include "../meta/meta.h"
 
@@ -24,7 +24,7 @@ constexpr MemoryTransferType transfer_type(const DeviceType src_dev,const Device
 template <typename memory_ST,typename memory_DT> constexpr MemoryTransferType transfer_type() {
 	return transfer_type(memory_ST::location,memory_DT::location);
 }
-
+#if defined(__CUDARUNTIMEQ__)
 constexpr cudaMemcpyKind memcpykind(const DeviceType src_dev,const DeviceType dst_dev) {
 	return (src_dev==HOST)?
 				((dst_dev==HOST)?cudaMemcpyHostToHost:((dst_dev==DEVICE)?cudaMemcpyHostToDevice:cudaMemcpyDefault)):
@@ -34,7 +34,8 @@ constexpr cudaMemcpyKind memcpykind(const DeviceType src_dev,const DeviceType ds
 template <typename memory_ST,typename memory_DT> constexpr cudaMemcpyKind memcpykind(){
 	return memcpykind(memory_ST::location,memory_DT::location);
 }
-template <typename T,typename int_T=std::size_t> __host__ __device__ constexpr typename std::enable_if<!is_same_CE<T,void>(),int_T>::type __sizeof__() {
+#endif
+template <typename T,typename int_T=std::size_t> __host_device__ constexpr typename std::enable_if<!is_same_CE<T,void>(),int_T>::type __sizeof__() {
 	return is_same_CE<void,T>()?1:__core__::__meta__::__sizeof__<T,int_T>();
 }
 }

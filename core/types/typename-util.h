@@ -1,5 +1,5 @@
-#ifndef __TYPENAME_UTIL_TYPES_H__
-#define __TYPENAME_UTIL_TYPES_H__
+#ifndef __TYPENAME_UTIL_TYPES_CORE_H__
+#define __TYPENAME_UTIL_TYPES_CORE_H__
 
 #include <cxxabi.h>
 #include <iostream>

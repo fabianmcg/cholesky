@@ -1,11 +1,13 @@
-#ifndef __TYPE_RW_CUH__
-#define __TYPE_RW_CUH__
+#ifndef __TYPE_RW_TYPES_CORE_H__
+#define __TYPE_RW_TYPES_CORE_H__
 #include <type_traits>
 
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
+#endif
+#include "../macros/compiler.h"
 
-#include "../macro-definitions.h"
 #include "../meta/meta.h"
 #include "enum-definitions.h"
 #include "fundamental-types.h"

@@ -1,5 +1,5 @@
-#ifndef __ENUM_DEFINITIONS_DEBUG_H__
-#define __ENUM_DEFINITIONS_DEBUG_H__
+#ifndef __ENUM_DEFINITIONS_DEBUG_CORE_H__
+#define __ENUM_DEFINITIONS_DEBUG_CORE_H__
 
 namespace __core__ {
 namespace __debug__ {

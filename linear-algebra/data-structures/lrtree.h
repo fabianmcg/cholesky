@@ -195,6 +195,7 @@ void LRTree<K,V,Allocator,PT>::clear() {
 template<typename K,typename V,typename Allocator,typename PT>
 void LRTree<K,V,Allocator,PT>::resize(size_t n,StreamType stream) {
 	__data__.reserve(n,stream);
+	__data__.expand();
 }
 template<typename K,typename V,typename Allocator,typename PT>
 void LRTree<K,V,Allocator,PT>::increaseSize() {

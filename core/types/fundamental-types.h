@@ -1,5 +1,5 @@
-#ifndef __FUNDAMENTAL_TYPES_H__
-#define __FUNDAMENTAL_TYPES_H__
+#ifndef __FUNDAMENTAL_TYPES_CORE_H__
+#define __FUNDAMENTAL_TYPES_CORE_H__
 
 namespace __core__ {
 namespace __type__ {

@@ -1,13 +1,17 @@
-#ifndef __TYPES_META_CUH__
-#define __TYPES_META_CUH__
+#ifndef __TYPES_META_CORE__H__
+#define __TYPES_META_CORE__H__
 
 #include <limits>
 #include <utility>
 #include <type_traits>
 
-#include <cuda.h>
+#include "../macros/definitions.h"
+#ifdef CUDA_SUPPORT_COREQ
+#include <cuda_runtime.h>
+#endif
+#include "../macros/compiler.h"
 
-#include "constexpr.cuh"
+#include "constexpr.h"
 
 namespace __core__ {
 namespace __meta__ {
@@ -104,7 +108,7 @@ template <typename T,typename U> using lower_PT=typename precision_type<T,U>::lo
 template <typename T> struct read_only_type {
 	static_assert(is_read_only_CE<T>(),"T is not read-only readable!!!");
 	static constexpr int size=sizeof(T);
-#ifdef __CUDA_ARCH__
+#if defined(CUDA_SUPPORT_COREQ)
 	typedef conditional_T<size==1,uint8_t,conditional_T<size==2,uint16_t,conditional_T<size==4,uint32_t,conditional_T<size==8,uint64_t,uint4>>>> type;
 #else
 	struct __attribute__((aligned(16))) __uint128__ {
@@ -156,23 +160,23 @@ template <template<typename,unsigned int,unsigned int> class CT,typename T,unsig
 template <typename T> using underlying_T=typename extract_type<T>::type;
 template <typename T> using basal_T=typename extract_type<T>::type;
 
-template <typename vector_T,typename IT=int> __forceinline__ __host__ __device__ constexpr IT vdim() {
+template <typename vector_T,typename IT=int> __forceinline__ __HOST__ __DEVICE__ constexpr IT vdim() {
     return static_cast<IT>(extract_type<vector_T>::dim);
 }
-template <typename vector_T,typename IT=unsigned int> __forceinline__ __host__ __device__ constexpr IT valignment() {
+template <typename vector_T,typename IT=unsigned int> __forceinline__ __HOST__ __DEVICE__ constexpr IT valignment() {
     return static_cast<IT>(extract_type<vector_T>::alignment);
 }
-template <typename vector_T,typename IT=unsigned int> __forceinline__ __host__ __device__ constexpr IT vsize() {
+template <typename vector_T,typename IT=unsigned int> __forceinline__ __HOST__ __DEVICE__ constexpr IT vsize() {
     return static_cast<IT>(sizeof(vector_T));
 }
-template <typename vector_T,typename IT=unsigned int> __forceinline__ __host__ __device__ constexpr IT esize() {
+template <typename vector_T,typename IT=unsigned int> __forceinline__ __HOST__ __DEVICE__ constexpr IT esize() {
     return static_cast<IT>(sizeof(typename extract_type<vector_T>::type));
 }
 
-template <typename T0,typename T1,typename...TN> __forceinline__ __host__ __device__ constexpr enable_T<(sizeof...(TN)==0),bool> same_dimensions() {
+template <typename T0,typename T1,typename...TN> __forceinline__ __HOST__ __DEVICE__ constexpr enable_T<(sizeof...(TN)==0),bool> same_dimensions() {
     return (vdim<T0>()==vdim<T1>());
 }
-template <typename T0,typename T1,typename...TN> __forceinline__ __host__ __device__ constexpr enable_T<(sizeof...(TN)>0),bool> same_dimensions() {
+template <typename T0,typename T1,typename...TN> __forceinline__ __HOST__ __DEVICE__ constexpr enable_T<(sizeof...(TN)>0),bool> same_dimensions() {
     return (vdim<T0>()==vdim<T1>())&&same_dimensions<T1,TN...>();
 }
 
@@ -190,13 +194,13 @@ template <typename T,constant_argument_T<T> V> struct __constant_argument__ {
 	static constexpr argument_type value=V;
 };
 
-template <typename T> __host__ __device__ constexpr constant_argument_T<T> template_argument(const T val) {
+template <typename T> __HOST__ __DEVICE__ constexpr constant_argument_T<T> template_argument(const T val) {
 	return (constant_argument_T<T>)val;
 }
-template <> __host__ __device__ constexpr constant_argument_T<float> template_argument(const float val) {
+template <> __HOST__ __DEVICE__ constexpr constant_argument_T<float> template_argument(const float val) {
 	return float_to_uint_CE(val);
 }
-template <> __host__ __device__ constexpr constant_argument_T<double> template_argument(const double val) {
+template <> __HOST__ __DEVICE__ constexpr constant_argument_T<double> template_argument(const double val) {
 	return double_to_ull_CE(val);
 }
 
@@ -253,7 +257,7 @@ template <int N,typename T,T T0,T... sequence> struct __get_sequence_element__<N
 template <typename T,carg_T<T>... N> struct constant_array {
 	typedef T type;
 	typedef types_array<constant_argument<T,__constant_argument__<T,N>>...> types;
-	template <int I> using nth_T=typename types::nth_T<I>;
+	template <int I> using nth_T=typename types::template nth_T<I>;
 	template <int I> using nth_VT=typename nth_T<I>::value_type;
 
 	static constexpr T arr[]={constant_argument<T,__constant_argument__<T,N>>::value...};
@@ -261,10 +265,10 @@ template <typename T,carg_T<T>... N> struct constant_array {
 	static constexpr carg_T<T> arr_raw[]={N...};
     static constexpr int size=sizeof...(N);
 
-    template <int n> __forceinline__ __host__ __device__ static constexpr carg_T<T> __get__() {
+    template <int n> __forceinline__ __HOST__ __DEVICE__ static constexpr carg_T<T> __get__() {
         return arr_raw[n];
     }
-    template <int n> __forceinline__ __host__ __device__ static constexpr T get() {
+    template <int n> __forceinline__ __HOST__ __DEVICE__ static constexpr T get() {
         return arr[n];
     }
 };
@@ -274,7 +278,7 @@ template <typename...T> struct constant_variant {
     template <int N> using nth_T=get_nth_T<N,T...>;
     template <int N> using nth_VT=typename get_nth_T<N,T...>::value_type;
     static constexpr int size=sizeof...(T);
-    template <int N> __forceinline__ __host__ __device__ static constexpr typename get_nth_T<N,T...>::value_type get() {
+    template <int N> __forceinline__ __HOST__ __DEVICE__ static constexpr typename get_nth_T<N,T...>::value_type get() {
         return get_nth_T<N,T...>::value;
     }
 };

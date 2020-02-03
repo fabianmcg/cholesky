@@ -1,5 +1,5 @@
-#ifndef SPARSE_HANDLER_H_
-#define SPARSE_HANDLER_MATRIX_FORMATS_H__
+#ifndef __SPARSE_HANDLER_MATRIX_FORMATS_H__
+#define __SPARSE_HANDLER_MATRIX_FORMATS_H__
 
 #include "sparse-cxs.h"
 
