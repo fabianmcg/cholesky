@@ -11,6 +11,7 @@ namespace __graph__ {
 template <bool contigous=true,typename AllocatorG=void,typename ATG=void,typename VG=void,typename PTG=int,typename ITG=int,typename VertexType=void,typename EdgeType=void,typename AllocatorCXS=void,typename ITCX=int,enable_IT<contigous==true> =0>
 void convert(GraphCXS<VertexType,EdgeType,AllocatorCXS,ITCX>& dstGraph,const Graph<AllocatorG,ATG,VG,PTG,ITG>& srcGraph) {
 	dstGraph.resize(srcGraph.vertex_quantity(),srcGraph.edge_quantity());
+	dstGraph.set(0);
 	size_t pos=0;
 	dstGraph.ptr(0)=0;
 	for(size_t i=0;i<dstGraph.v();++i) {

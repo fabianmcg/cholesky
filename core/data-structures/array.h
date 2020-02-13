@@ -85,7 +85,7 @@ public:
 	template <bool check=true,typename allocatorType_T=void,enable_IT<!check> = 0> Array& import(const Array<T,allocatorType_T>& array,StreamType stream=(StreamType)0);
 };
 template <typename T,typename Allocator>
-Array<T,Allocator>::Array(int dev): __allocator__(Allocator(dev)) {
+Array<T,Allocator>::Array(int dev): __data__(nullptr), __allocator__(Allocator(dev)) {
 	__set_device__(dev);
 }
 template <typename T,typename Allocator>

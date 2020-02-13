@@ -90,7 +90,7 @@ template<typename T,typename Allocator,uint ALIGNMENT> struct Matrix<T,Allocator
 };
 
 template<typename T,typename Allocator,uint ALIGNMENT>
-inline Matrix<T,Allocator,ALIGNMENT>::Matrix(int dev):__data__(Array<uchar,Allocator>(dev)) {
+inline Matrix<T,Allocator,ALIGNMENT>::Matrix(int dev): __data__(Array<uchar,Allocator>(dev)) {
 }
 template<typename T,typename Allocator,uint ALIGNMENT>
 inline Matrix<T,Allocator,ALIGNMENT>::Matrix(const Matrix& matrix): __data__(matrix.__data__),__rows__(matrix.__rows__),__cols__(matrix.__cols__),__pitch__(matrix.__pitch__) {
@@ -265,11 +265,11 @@ inline void Matrix<T,Allocator,ALIGNMENT>::resize(size_t i,T val,StreamType stre
 template<typename T,typename Allocator,uint ALIGNMENT>
 inline void Matrix<T,Allocator,ALIGNMENT>::resize(size_t i,size_t j,T val,StreamType stream) {
 	if(computeSize(i,j)>__data__.capacity())
-		__data__.resize(computeSize(i,i),0,stream);
+		__data__.resize(computeSize(i,j),0,stream);
 	__rows__=i;
 	__cols__=j;
 	__pitch__=computePitch(i,j);
-	apply_meta<__assign__,Allocator::location,ApplyArrayExecutionPolicy<8,128,4,false>>(__rows__*__cols__,__data__.device(),stream,*__data__,__rows__,__cols__,__pitch__,val);
+	apply_meta<__assign__,Allocator::location,ApplyArrayExecutionPolicy<8,128,1,false>>(__rows__*__cols__,__data__.device(),stream,*__data__,__rows__,__cols__,__pitch__,val);
 }
 template<typename T,typename Allocator,uint ALIGNMENT>
 inline void Matrix<T,Allocator,ALIGNMENT>::reshape(size_t i) {
@@ -284,7 +284,7 @@ inline void Matrix<T,Allocator,ALIGNMENT>::reshape(size_t i) {
 }
 template<typename T,typename Allocator,uint ALIGNMENT>
 inline void Matrix<T,Allocator,ALIGNMENT>::reshape(size_t i,size_t j) {
-	if(computeSize(i,i)>__data__.capacity()) {
+	if(computeSize(i,j)>__data__.capacity()) {
 		error(true,"Invalid shape.",RUNTIME_ERROR,throw_error);
 	}
 	else {

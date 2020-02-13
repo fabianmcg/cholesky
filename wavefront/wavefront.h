@@ -4,6 +4,8 @@
 #include "data-structures/data-structures.h"
 #include "graph-operations/graph-operations.h"
 #include "runtime/runtime.h"
+#include "smith-waterman/smith-waterman.h"
+
 namespace __core__ {
 using namespace __wavefront__;
 }

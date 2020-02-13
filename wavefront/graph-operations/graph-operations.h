@@ -3,6 +3,7 @@
 
 #include "convert.h"
 #include "depth-first.h"
+#include "topological-sort.h"
 
 namespace __core__ {
 namespace __wavefront__ {

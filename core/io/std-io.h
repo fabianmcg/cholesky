@@ -91,7 +91,7 @@ template <typename K,typename V,typename C> std::ostream & print(const std::unor
 	size=std::min(size,map.size());
 	ost<<begin;
 	size_t c=0;
-	for(typename std::map<K,V,C>::const_iterator i=map.cbegin();i!=map.cend()&&(c<size);++i) {
+	for(auto i=map.cbegin();(i!=map.cend())&&(c<size);++i) {
 		pprinter(ost,i->first,i->second);
 		if((c++)!=(map.size()-1))
 			ost<<separator;
