@@ -11,6 +11,8 @@
 #endif
 #endif
 #include "read-blosum.h"
+#include "write-graph.h"
+
 namespace __core__ {
 namespace __wavefront__ {
 using namespace __smith_waterman__;

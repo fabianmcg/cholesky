@@ -9,7 +9,8 @@ namespace __runtime__ {
 enum __ompGraphVersion__ {
 	OMPOrderedGraph,
 	OMPTopologicalSort,
-	OMPUserOrder
+	OMPUserOrder,
+	OMPUserOrderDebug
 };
 typedef __ompGraphVersion__ ompGraphVersion;
 
@@ -81,6 +82,30 @@ void ompGraph(GraphCXS<VertexType,EdgeType,Allocator,IT>& graph,FT& function,con
 #pragma omp task depend(iterator(it=0:size), in:ptr[graph.indxs(pos+it)]) depend(out:ptr[v])
 					{
 						function(v,omp_get_thread_num(),args...);
+					}
+			}
+		}
+	}
+}
+template <ompGraphVersion version=OMPOrderedGraph,typename FT=void,typename VertexType=void,typename EdgeType=void,typename Allocator=void,typename IT=int,typename...Args,enable_IT<eq_CE(version,OMPUserOrderDebug)> = 0>
+void ompGraph(GraphCXS<VertexType,EdgeType,Allocator,IT>& graph,FT& function,const std::vector<int>& order,int threadnum,Args...args) {
+	IT* ptr=graph.ptr();
+#pragma omp parallel  num_threads(threadnum)
+	{
+	#pragma omp single
+		{
+			for(size_t i=0;i<order.size();++i) {
+				int v=order[i];
+				IT pos=graph.ptr(v),size=graph.ptr(v+1)-graph.ptr(v);
+#pragma omp task depend(iterator(it=0:size), in:ptr[graph.indxs(pos+it)]) depend(out:ptr[v])
+					{
+						cpu_timer timer;
+						int tid=omp_get_thread_num();
+						timer.start();
+						function(v,tid,args...);
+						timer.stop();
+						graph[v].etime=timer.elapsed_time();
+						graph[v].tid=tid;
 					}
 			}
 		}

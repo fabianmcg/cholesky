@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 	std::string blosumfn="./test/matrices/BLOSUM62.txt";
 	size_t asize=16,bsize=16,px,py,its=1;
 	px=__max__(asize/4,2),py=__max__(bsize/4,2);
-	bool totalTime=false;
+	bool totalTime=false,debug=true;
 	int threadnum=2;
 	int gap=4;
 	if(argc > 2) {
@@ -36,7 +36,11 @@ int main(int argc, char **argv) {
 	if(argc > 7)
 		its=std::stoi(argv[7]);
 	if( argc > 8)
-		blosumfn=std::string(argv[8]);
+		debug=std::stoi(argv[8])>0;
+	if( argc > 9)
+		blosumfn=std::string(argv[9]);
+	if(debug)
+		its=1;
 	auto blosum=readBlosum(blosumfn);
 	string &alphabet=get<0>(blosum);
 	alphabet.erase(std::remove(alphabet.begin(),alphabet.end(),'*'),alphabet.end());
@@ -57,8 +61,11 @@ int main(int argc, char **argv) {
 	se=se/its;
 	cerr<<"Smith-Waterman serial duration:\n\t"<<se<<endl;
 	double pe=0;
-	for(size_t i=0;i<its;++i)
-		pe+=smithWatermanP(B,A,P,score,gap,px,py,threadnum,totalTime);
+	if(debug)
+		pe+=smithWatermanPD(B,A,P,score,gap,px,py,threadnum,totalTime);
+	else
+		for(size_t i=0;i<its;++i)
+			pe+=smithWatermanP(B,A,P,score,gap,px,py,threadnum,totalTime);
 	pe=pe/its;
 	cerr<<"Smith-Waterman parallel duration:\n\t"<<pe<<endl;
 	cerr<<"Smith-Waterman speedup:\n\t"<<se/pe<<endl;
